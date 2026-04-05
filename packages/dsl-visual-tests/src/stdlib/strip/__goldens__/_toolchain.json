@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "toolchain": {
+    "ffmpeg": {
+      "baseline": {
+        "snapshot": "N-123549-g70537ec8e6-20260318",
+        "profile": "lgpl",
+        "libx264": false,
+        "source": "BtbN"
+      },
+      "runtime": {
+        "found": true,
+        "version": "ffmpeg version N-123549-g70537ec8e6-20260318 Copyright (c) 2000-2026 the FFmpeg developers",
+        "libx264": false
+      }
+    },
+    "ffprobe": {
+      "runtime": {
+        "found": true,
+        "version": "ffprobe version N-123549-g70537ec8e6-20260318 Copyright (c) 2007-2026 the FFmpeg developers"
+      }
+    }
+  }
+}

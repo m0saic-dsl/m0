@@ -1,0 +1,59 @@
+{
+  "name": "@m0saic/dsl-stdlib",
+  "version": "1.0.0",
+  "description": "Standard library of builders, transforms, and utilities for the m0 DSL",
+  "keywords": [
+    "m0saic",
+    "m0",
+    "dsl",
+    "stdlib",
+    "layout",
+    "grid",
+    "transform",
+    "builder"
+  ],
+  "license": "Apache-2.0",
+  "private": false,
+  "type": "commonjs",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/m0saic-dsl/m0.git",
+    "directory": "packages/dsl-stdlib"
+  },
+  "homepage": "https://github.com/m0saic-dsl/m0",
+  "bugs": {
+    "url": "https://github.com/m0saic-dsl/m0/issues"
+  },
+  "author": "m0saic LLC",
+  "files": [
+    "dist",
+    "LICENSE",
+    "NOTICE",
+    "README.md"
+  ],
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "browser": "./dist/esm/index.js",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "scripts": {
+    "build": "npm run build:types && npm run build:esm && npm run build:cjs",
+    "build:types": "tsc -p tsconfig.types.json",
+    "build:esm": "tsc -p tsconfig.esm.json && node scripts/fix-esm-imports.js && node -e \"require('fs').writeFileSync('dist/esm/package.json','{\\\"type\\\":\\\"module\\\"}\\n')\"",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "clean": "rm -rf dist",
+    "dev": "tsc -w",
+    "typecheck": "tsc --noEmit",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@m0saic/dsl": "^1.0.0"
+  }
+}

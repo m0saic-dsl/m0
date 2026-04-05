@@ -1,0 +1,1 @@
+export { hasOverlayAtSpan } from "./hasOverlayAtSpan";

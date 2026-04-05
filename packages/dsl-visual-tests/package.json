@@ -1,0 +1,55 @@
+{
+  "name": "@m0saic/dsl-visual-tests",
+  "version": "1.0.0",
+  "description": "Visual golden tests and reusable test harness for the m0 DSL",
+  "keywords": [
+    "m0saic",
+    "m0",
+    "dsl",
+    "visual-tests",
+    "golden",
+    "wireframe"
+  ],
+  "license": "Apache-2.0",
+  "private": false,
+  "type": "commonjs",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/m0saic-dsl/m0.git",
+    "directory": "packages/dsl-visual-tests"
+  },
+  "homepage": "https://github.com/m0saic-dsl/m0",
+  "bugs": {
+    "url": "https://github.com/m0saic-dsl/m0/issues"
+  },
+  "author": "m0saic LLC",
+  "files": [
+    "dist",
+    "LICENSE",
+    "NOTICE",
+    "README.md"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "dev": "tsc -w",
+    "typecheck": "tsc --noEmit",
+    "test": "jest",
+    "test:goldens:update": "M0SAIC_UPDATE_GOLDENS=1 npm test"
+  },
+  "dependencies": {
+    "@m0saic/dsl": "^1.0.0",
+    "@m0saic/dsl-file-formats": "^1.0.0",
+    "@m0saic/dsl-stdlib": "^1.0.0"
+  },
+  "devDependencies": {}
+}

@@ -1,0 +1,27 @@
+{
+  "fixture": "m0saic-m-33.m0",
+  "description": "Canonical Mosaic M logo — 33 rendered frames, 272x272 pixel grid",
+  "dslLength": 36199,
+  "complexity": {
+    "frameCount": 33,
+    "passthroughCount": 16588,
+    "nullCount": 1298,
+    "groupCount": 66,
+    "nodeCount": 17985,
+    "precisionCost": 272,
+    "precision": {
+      "maxSplitX": 272,
+      "maxSplitY": 272,
+      "maxSplitAny": 272
+    }
+  },
+  "feasibility": {
+    "minWidthPx": 266,
+    "minHeightPx": 248
+  },
+  "parseCounts": {
+    "renderFrames": 33,
+    "editorFrames": 17985,
+    "traversalEvents": 35937
+  }
+}

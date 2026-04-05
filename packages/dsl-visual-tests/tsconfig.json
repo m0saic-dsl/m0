@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "declaration": true,
+    "target": "ES2020",
+    "module": "CommonJS",
+    "moduleResolution": "Node10",
+    "rootDir": "src",
+    "outDir": "dist",
+    "strict": true,
+    "types": ["jest", "node"],
+    "ignoreDeprecations": "6.0"
+  },
+  "include": ["src"]
+}
