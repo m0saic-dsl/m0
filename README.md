@@ -112,8 +112,8 @@ This repository contains multiple packages. Start with `dsl`.
 
 - [`packages/dsl`](./packages/dsl)  
   Core language: parser, validator, canonicalization, geometry evaluation  
-  → API: ./packages/dsl/API.md  
-  → Docs: ./packages/dsl/README.md  
+  → [API](./packages/dsl/API.md)  
+  → [Docs](./packages/dsl/README.md)  
 
 ---
 
@@ -121,8 +121,8 @@ This repository contains multiple packages. Start with `dsl`.
 
 - [`packages/dsl-stdlib`](./packages/dsl-stdlib)  
   Builders, transforms, and utilities for constructing and modifying m0 strings  
-  → API: ./packages/dsl-stdlib/API.md  
-  → Docs: ./packages/dsl-stdlib/README.md  
+  → [API](./packages/dsl-stdlib/API.md) 
+  → [Docs](./packages/dsl-stdlib/README.md)
 
 ---
 
@@ -130,8 +130,8 @@ This repository contains multiple packages. Start with `dsl`.
 
 - [`packages/dsl-file-formats`](./packages/dsl-file-formats)  
   `.m0` and `.m0c` serialization, parsing, and metadata containers  
-  → API: ./packages/dsl-file-formats/API.md  
-  → Docs: ./packages/dsl-file-formats/README.md  
+  → [API](./packages/dsl-file-formats/API.md)  
+  → [Docs](./packages/dsl-file-formats/README.md)
 
 ---
 
@@ -139,7 +139,7 @@ This repository contains multiple packages. Start with `dsl`.
 
 - [`packages/dsl-visual-tests`](./packages/dsl-visual-tests)  
   Golden tests that render layouts and verify geometry via PNG + `.m0` pairs  
-  → Docs: ./packages/dsl-visual-tests/README.md  
+  → [Docs](./packages/dsl-visual-tests/README.md)  
 
 ---
 
@@ -171,7 +171,7 @@ The m0 grammar and semantics follow semantic versioning.
 ## Links
 
 - Website: https://m0saic.io  
-- Learn: https://m0saic.io/learn  
+- Learn: https://app.m0saic.io/learn  
 - Editor: https://app.m0saic.io/layout  
 
 ---
