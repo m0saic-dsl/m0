@@ -147,7 +147,7 @@ This repository contains multiple packages. Start with `dsl`.
 
 m0 is the core layout algebra.
 
-**m0saic** is a system built on top of m0 that provides:
+[**m0saic**](https://github.com/m0saic-project) is a system built on top of m0 that provides:
 
 - Visual editing tools  
 - Template systems  
