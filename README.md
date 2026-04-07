@@ -108,7 +108,7 @@ This separation preserves m0 as a portable, implementation-independent layout co
 
 This repository contains multiple packages. Start with `dsl`.
 
-### Core
+### DSL
 
 - [`packages/dsl`](./packages/dsl)  
   Core language: parser, validator, canonicalization, geometry evaluation  
@@ -117,11 +117,11 @@ This repository contains multiple packages. Start with `dsl`.
 
 ---
 
-### Authoring & Construction
+### DSL Standard Library
 
 - [`packages/dsl-stdlib`](./packages/dsl-stdlib)  
   Builders, transforms, and utilities for constructing and modifying m0 strings  
-  → [API](./packages/dsl-stdlib/API.md) 
+  → [API](./packages/dsl-stdlib/API.md)  
   → [Docs](./packages/dsl-stdlib/README.md)
 
 ---
