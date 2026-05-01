@@ -6,8 +6,7 @@
  */
 
 import type { M0String } from "@m0saic/dsl";
-import { weightedTokens } from "./weightedTokens";
-import { container } from "./container";
+import { weightedSplit } from "./weightedSplit";
 import { strip } from "./strip";
 
 // ── Types ─────────────────────────────────────────────────
@@ -67,14 +66,17 @@ export function spotlight(opts: SpotlightOptions = {}): SpotlightResult {
 
   let m0: M0String;
 
+  // Compose the outer split's weights/claimants list, then hand off to
+  // weightedSplit so the result is GCD-reduced. Each branch builds a
+  // (weights[], claimants[]) pair laid out from one edge to the other.
   switch (arrangement) {
     case "bottom": {
       // Hero on top, support strip below
-      const slots: string[] = [];
-      slots.push(...weightedTokens(heroW, "1"));
-      if (hasGutter) slots.push(...weightedTokens(gutterW, "-"));
-      slots.push(...weightedTokens(supportW, supportExpr));
-      m0 = container(slots, "row");
+      const weights: number[] = [heroW];
+      const claimants: string[] = ["1"];
+      if (hasGutter) { weights.push(gutterW); claimants.push("-"); }
+      weights.push(supportW); claimants.push(supportExpr as string);
+      m0 = weightedSplit(weights, "row", { claimants });
       break;
     }
     case "right": {
@@ -83,11 +85,11 @@ export function spotlight(opts: SpotlightOptions = {}): SpotlightResult {
         cellWeight: cellW,
         gutterWeight: gutterW,
       });
-      const slots: string[] = [];
-      slots.push(...weightedTokens(heroW, "1"));
-      if (hasGutter) slots.push(...weightedTokens(gutterW, "-"));
-      slots.push(...weightedTokens(supportW, supportCol));
-      m0 = container(slots, "col");
+      const weights: number[] = [heroW];
+      const claimants: string[] = ["1"];
+      if (hasGutter) { weights.push(gutterW); claimants.push("-"); }
+      weights.push(supportW); claimants.push(supportCol as string);
+      m0 = weightedSplit(weights, "col", { claimants });
       break;
     }
     case "l-wrap": {
@@ -102,22 +104,22 @@ export function spotlight(opts: SpotlightOptions = {}): SpotlightResult {
       });
 
       // Top row: hero + right column
-      const topSlots: string[] = [];
-      topSlots.push(...weightedTokens(heroW, "1"));
-      if (hasGutter) topSlots.push(...weightedTokens(gutterW, "-"));
-      topSlots.push(...weightedTokens(supportW, rightCol));
-      const topExpr = container(topSlots, "col");
+      const topWeights: number[] = [heroW];
+      const topClaimants: string[] = ["1"];
+      if (hasGutter) { topWeights.push(gutterW); topClaimants.push("-"); }
+      topWeights.push(supportW); topClaimants.push(rightCol as string);
+      const topExpr = weightedSplit(topWeights, "col", { claimants: topClaimants });
 
       if (bottomCount > 0) {
         const bottomStrip = strip(bottomCount, "col", {
           cellWeight: cellW,
           gutterWeight: gutterW,
         });
-        const outerSlots: string[] = [];
-        outerSlots.push(...weightedTokens(heroW, topExpr));
-        if (hasGutter) outerSlots.push(...weightedTokens(gutterW, "-"));
-        outerSlots.push(...weightedTokens(supportW, bottomStrip));
-        m0 = container(outerSlots, "row");
+        const outerWeights: number[] = [heroW];
+        const outerClaimants: string[] = [topExpr as string];
+        if (hasGutter) { outerWeights.push(gutterW); outerClaimants.push("-"); }
+        outerWeights.push(supportW); outerClaimants.push(bottomStrip as string);
+        m0 = weightedSplit(outerWeights, "row", { claimants: outerClaimants });
       } else {
         m0 = topExpr;
       }
@@ -133,19 +135,19 @@ export function spotlight(opts: SpotlightOptions = {}): SpotlightResult {
         gutterWeight: gutterW,
       });
 
-      const slots: string[] = [];
-      slots.push(...weightedTokens(supportW, leftCol));
-      if (hasGutter) slots.push(...weightedTokens(gutterW, "-"));
-      slots.push(...weightedTokens(heroW, "1"));
+      const weights: number[] = [supportW];
+      const claimants: string[] = [leftCol as string];
+      if (hasGutter) { weights.push(gutterW); claimants.push("-"); }
+      weights.push(heroW); claimants.push("1");
       if (rightCount > 0) {
         const rightCol = strip(rightCount, "row", {
           cellWeight: cellW,
           gutterWeight: gutterW,
         });
-        if (hasGutter) slots.push(...weightedTokens(gutterW, "-"));
-        slots.push(...weightedTokens(supportW, rightCol));
+        if (hasGutter) { weights.push(gutterW); claimants.push("-"); }
+        weights.push(supportW); claimants.push(rightCol as string);
       }
-      m0 = container(slots, "col");
+      m0 = weightedSplit(weights, "col", { claimants });
       break;
     }
   }

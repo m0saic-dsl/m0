@@ -11,3 +11,29 @@ export { safeCanvas } from "./safeCanvas";
 export { spotlight } from "./spotlight";
 export { comparison } from "./comparison";
 export { rankedList } from "./rankedList";
+export {
+  snapGridFit,
+  snapGridFind,
+  snapGridEnumerate,
+} from "./snapGrid";
+export type {
+  SnapGridFitOptions,
+  SnapGridFindOptions,
+  SnapGridResult,
+  SnapGridCandidate,
+  SnapGridAlignH,
+  SnapGridAlignV,
+} from "./snapGrid";
+export {
+  goldenSplit,
+  goldenSpiral,
+  goldenRect,
+} from "./golden";
+export type {
+  GoldenSplitOptions,
+  GoldenSpiralOptions,
+  GoldenSpiralCorner,
+  GoldenRectOptions,
+  GoldenRectResult,
+  GoldenPrecision,
+} from "./golden";

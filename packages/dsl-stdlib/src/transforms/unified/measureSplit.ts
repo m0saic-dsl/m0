@@ -1,5 +1,5 @@
 import type { M0Axis } from "@m0saic/dsl";
-import type { TransformTarget } from "../types";
+import type { TransformTarget, ReductionMode } from "../types";
 import type { OpOutputOptions } from "../_internal/output";
 import type { MeasureRange } from "../composed/measure/_internal/buildMeasureFragment";
 import { measureSplitByLogicalIndex } from "../composed/measure/measureSplitByLogicalIndex";
@@ -10,6 +10,8 @@ export type MeasureSplitOptions = OpOutputOptions & {
   axis: M0Axis;
   count: number;
   ranges: MeasureRange[];
+  /** `"optimized"` (default) GCD-reduces the output. `"literal"` preserves N. */
+  measureMode?: ReductionMode;
 };
 
 /**

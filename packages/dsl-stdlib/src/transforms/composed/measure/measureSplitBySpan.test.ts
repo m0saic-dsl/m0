@@ -30,12 +30,24 @@ describe("measureSplitBySpan", () => {
   });
 
   test("replaces bare root tile", () => {
+    // Two equal-width groups [0..2] and [3..5] in 6 slots — run lengths
+    // are [3, 3], GCD = 3, so the optimized output collapses to a
+    // 2-slot split with two claimants (semantically identical, smaller
+    // canonical form). Pass `measureMode: "literal"` to preserve the
+    // unreduced 6-slot form.
     const out = measureSplitBySpan("1", { start: 0, end: 1 }, "col", 6, [
       { a: 0, b: 2 },
       { a: 3, b: 5 },
     ]);
     expectValid(out);
-    expect(out).toBe("6(0,0,1,0,0,1)");
+    expect(out).toBe("2(1,1)");
+
+    const literal = measureSplitBySpan("1", { start: 0, end: 1 }, "col", 6, [
+      { a: 0, b: 2 },
+      { a: 3, b: 5 },
+    ], { measureMode: "literal" });
+    expectValid(literal);
+    expect(literal).toBe("6(0,0,1,0,0,1)");
   });
 
   test("row axis uses brackets", () => {

@@ -1,4 +1,5 @@
 import type { M0Axis } from "@m0saic/dsl";
+import type { ReductionMode } from "../../types";
 import { type OpOutputOptions } from "../../_internal/output";
 import { resolveSpanByStableId } from "../../_internal/resolveSpanByStableId";
 import { measureSplitBySpan } from "./measureSplitBySpan";
@@ -28,7 +29,7 @@ export function measureSplitByStableId(
   axis: M0Axis,
   N: number,
   ranges: MeasureRange[],
-  opts?: OpOutputOptions,
+  opts?: OpOutputOptions & { measureMode?: ReductionMode },
 ): string {
   const { canonical, span } = resolveSpanByStableId("measureSplitByStableId", m0, stableKey);
   return measureSplitBySpan(canonical, span, axis, N, ranges, opts);

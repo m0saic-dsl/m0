@@ -342,6 +342,34 @@ describe("m0c roundtrip", () => {
   });
 });
 
+describe("custom field round-trip", () => {
+  it("preserves arbitrary JSON in `custom`", () => {
+    const custom = {
+      brand: { palette: ["#ef7525", "#1a1a1a"] },
+      sources: ["brief.pdf"],
+      flags: { reviewed: true, needsLocalization: null },
+    };
+    const json = serializeM0cFile({
+      m0: "F",
+      size: { width: 100, height: 100 },
+      created: FIXED_DATE,
+      custom,
+    });
+    const parsed = parseM0cFile(json);
+    expect(parsed.custom).toEqual(custom);
+  });
+
+  it("defaults custom to null when absent (null-stable)", () => {
+    const json = serializeM0cFile({
+      m0: "F",
+      size: { width: 100, height: 100 },
+      created: FIXED_DATE,
+    });
+    const parsed = parseM0cFile(json);
+    expect(parsed.custom).toBeNull();
+  });
+});
+
 describe("derive image base64 roundtrip", () => {
   it("bytes field matches decoded length", () => {
     const bytes = new Uint8Array([0, 1, 2, 255, 128, 64]);

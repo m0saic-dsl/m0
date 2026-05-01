@@ -47,8 +47,9 @@ describe("measureSplitByStableId", () => {
       { a: 3, b: 5 },
     ]);
     expectValid(out);
-    // Second tile replaced, passthrough unchanged
-    expect(out).toMatch(/^3\(1,0,6\[/);
+    // Second tile replaced; passthrough unchanged. The 6-slot row-split
+    // with run lengths [3, 3] reduces to a 2-slot split by GCD.
+    expect(out).toMatch(/^3\(1,0,2\[/);
     // Two adjacent groups → 2 claimants inside measure + 1 from first child
     expect(countClaimants(out)).toBe(3);
     expect(countChar(out, "-")).toBe(0);
@@ -61,7 +62,15 @@ describe("measureSplitByStableId", () => {
       { a: 3, b: 5 },
     ]);
     expectValid(out);
-    expect(out).toBe("6(0,0,1,0,0,1)");
+    // Run lengths [3, 3] → GCD 3 → 2-slot split.
+    expect(out).toBe("2(1,1)");
+
+    const literal = measureSplitByStableId("1", key, "col", 6, [
+      { a: 0, b: 2 },
+      { a: 3, b: 5 },
+    ], { measureMode: "literal" });
+    expectValid(literal);
+    expect(literal).toBe("6(0,0,1,0,0,1)");
   });
 
   test("preserves overlay on replaced tile", () => {

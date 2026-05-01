@@ -19,8 +19,15 @@ describe("strip", () => {
     expect(strip(3, "row", { cellWeight: 1 })).toBe("3[1,1,1]");
   });
 
-  test("2 cells, weight 3 — passthrough expansion", () => {
-    expect(strip(2, "col", { cellWeight: 3 })).toBe("6(0,0,1,0,0,1)");
+  test("2 cells, weight 3 — GCD-reduces to equal split", () => {
+    // GCD(3,3)=3, reduces to [1,1].
+    expect(strip(2, "col", { cellWeight: 3 })).toBe("2(1,1)");
+  });
+
+  test("2 cells, weight 3, literal mode keeps 6 slots", () => {
+    expect(strip(2, "col", { cellWeight: 3, mode: "literal" })).toBe(
+      "6(0,0,1,0,0,1)",
+    );
   });
 
   test("4 cells, weight 1", () => {
@@ -93,10 +100,17 @@ describe("strip", () => {
     );
   });
 
-  test("claimant with weighted cells", () => {
+  test("claimant with weighted cells GCD-reduces", () => {
+    // GCD(3,3)=3, reduces to [1,1] with the custom claimant.
     expect(strip(2, "col", { cellWeight: 3, claimant: "1{1}" })).toBe(
-      "6(0,0,1{1},0,0,1{1})",
+      "2(1{1},1{1})",
     );
+  });
+
+  test("claimant with weighted cells, literal mode keeps full slot count", () => {
+    expect(
+      strip(2, "col", { cellWeight: 3, claimant: "1{1}", mode: "literal" }),
+    ).toBe("6(0,0,1{1},0,0,1{1})");
   });
 
   test("claimant with gutters", () => {
@@ -113,28 +127,38 @@ describe("strip", () => {
 
   // ---- Realistic usage ----
 
-  test("magazine sidebar pattern: 2 tiles, row, weighted, with gutter", () => {
+  test("magazine sidebar pattern: 2 tiles, row, weighted, with gutter (GCD-reduced)", () => {
     const result = strip(2, "row", { cellWeight: 50, gutterWeight: 5 });
-    // 2 cells @ 50 + 1 gutter @ 5 = 105 total
-    expect(result).toMatch(/^105\[/);
+    // GCD(50,5)=5 → 2 cells @ 10 + 1 gutter @ 1 = 21 total
+    expect(result).toMatch(/^21\[/);
     expect(result).toMatch(/\]$/);
   });
 
-  test("magazine bottom strip: 3 tiles, col, weighted, with gutter", () => {
+  test("magazine sidebar pattern: literal mode keeps full slot count", () => {
+    const result = strip(2, "row", {
+      cellWeight: 50,
+      gutterWeight: 5,
+      mode: "literal",
+    });
+    // 2 cells @ 50 + 1 gutter @ 5 = 105 total
+    expect(result).toMatch(/^105\[/);
+  });
+
+  test("magazine bottom strip: 3 tiles, col, weighted, with gutter (GCD-reduced)", () => {
     const result = strip(3, "col", { cellWeight: 50, gutterWeight: 5 });
-    // 3 cells @ 50 + 2 gutters @ 5 = 160 total
-    expect(result).toMatch(/^160\(/);
+    // GCD(50,5)=5 → 3 cells @ 10 + 2 gutters @ 1 = 32 total
+    expect(result).toMatch(/^32\(/);
     expect(result).toMatch(/\)$/);
   });
 
-  test("grid row pattern: 4 cells, col, with gutter and outer gutters", () => {
+  test("grid row pattern: 4 cells, col, with gutter and outer gutters (GCD-reduced)", () => {
     const result = strip(4, "col", {
       cellWeight: 10,
       gutterWeight: 2,
       outerGutters: true,
     });
-    // 4 cells @ 10 + 5 gutters @ 2 = 50 total
-    expect(result).toMatch(/^50\(/);
+    // GCD(10,2)=2 → 4 cells @ 5 + 5 gutters @ 1 = 25 total
+    expect(result).toMatch(/^25\(/);
   });
 
   // ---- Invalid inputs ----

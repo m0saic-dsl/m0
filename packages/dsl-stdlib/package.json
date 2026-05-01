@@ -1,6 +1,6 @@
 {
   "name": "@m0saic/dsl-stdlib",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Standard library of builders, transforms, and utilities for the m0 DSL",
   "keywords": [
     "m0saic",

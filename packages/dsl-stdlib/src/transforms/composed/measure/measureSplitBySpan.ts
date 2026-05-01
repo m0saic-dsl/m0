@@ -1,4 +1,5 @@
 import type { M0Axis } from "@m0saic/dsl";
+import type { ReductionMode } from "../../types";
 import { validateInputOrThrow, assertValidSpan, assertRenderedFrameSpan, type OpOutputOptions } from "../../_internal/output";
 import { replaceNodeBySpan } from "../../primitives/replace/replaceNodeBySpan";
 import {
@@ -31,7 +32,7 @@ export function measureSplitBySpan(
   axis: M0Axis,
   N: number,
   ranges: MeasureRange[],
-  opts?: OpOutputOptions,
+  opts?: OpOutputOptions & { measureMode?: ReductionMode },
 ): string {
   validateMeasureRanges(N, ranges);
 
@@ -41,7 +42,7 @@ export function measureSplitBySpan(
   assertRenderedFrameSpan("measureSplitBySpan", canonical, span);
 
   const normalized = normalizeGroups(ranges);
-  const replacement = buildMeasureFragment(axis, N, normalized);
+  const replacement = buildMeasureFragment(axis, N, normalized, opts?.measureMode);
 
   return replaceNodeBySpan(canonical, span, replacement, opts);
 }

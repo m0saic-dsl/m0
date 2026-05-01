@@ -48,12 +48,15 @@ All builders return validated `M0String` values.
 | `grid` | `(opts: GridOptions) => GridResult` | Rectangular grid with ratio-based gutters and auto-scaling |
 | `aspectFit` | `(opts: AspectFitOptions) => AspectFitResult` | Fit aspect ratio inside canvas with letterbox/pillarbox |
 | `placeRect` | `(opts: PlaceRectOptions) => PlaceRectResult` | Place exact rectangle inside canvas with alignment |
-| `aspectSafeGrid` | `(opts: AspectSafeGridOptions) => AspectSafeGridResult` | Grid with zero distortion across landscape + portrait |
+| `aspectSafeGrid` | `(opts: AspectSafeGridOptions) => AspectSafeGridResult` | Coordinated aspect-matched pair of grids — landscape DSL + portrait DSL with same cell count, similar cell aspect ratios, both quantization-free at their respective canvases |
 | `safeCanvas` | `(opts: SafeCanvasOptions) => SafeCanvasResult` | Largest canvas where a guttered grid has zero rounding |
 | `spotlight` | `(opts?: SpotlightOptions) => SpotlightResult` | Hero tile with weighted supporting tiles |
 | `comparison` | `(opts?: ComparisonOptions) => ComparisonResult` | Side-by-side or stacked A/B pairs |
 | `rankedList` | `(opts?: RankedListOptions) => RankedListResult` | Weighted stack with progressive size decay |
 | `bentoGrid` | `(opts?: BentoGridOptions) => BentoGridResult` | Curated irregular grid patterns |
+| `goldenSplit` | `(opts: GoldenSplitOptions) => M0String` | Single golden-ratio (φ:1) two-cell split — Fibonacci-pair approximation |
+| `goldenSpiral` | `(opts: GoldenSpiralOptions) => M0String` | Recursive golden splits forming a spiral composition |
+| `goldenRect` | `(opts: GoldenRectOptions) => GoldenRectResult` | Largest 1.618:1 (or 1:1.618) rectangle inside a canvas, wrapped in `placeRect` |
 
 ---
 
@@ -115,7 +118,7 @@ type TransformTarget =
 | `PlaceRectOptions` | `{ rootW, rootH, rectW, rectH, hAlign?, vAlign? }` |
 | `PlaceRectHAlign` | `"left" \| "center" \| "right"` |
 | `PlaceRectVAlign` | `"top" \| "center" \| "bottom"` |
-| `AspectSafeGridOptions` | `{ landscapeW?, landscapeH?, portraitW?, portraitH?, minCols?, maxCols?, minRows?, maxRows?, gutter?, outerGutters?, priority? }` |
+| `AspectSafeGridOptions` | `{ landscapeW?, landscapeH?, portraitW?, portraitH?, minCols?, maxCols?, minRows?, maxRows?, landscapeMinRows?, landscapeMaxRows?, landscapeMinCols?, landscapeMaxCols?, portraitMinRows?, portraitMaxRows?, portraitMinCols?, portraitMaxCols?, targetCellAspectRatio?, targetCellCount?, cellCountTolerance?, letterbox?, hAlign?, vAlign?, gutter?, outerGutters?, priority? }` |
 | `AspectSafeGridPriority` | `"balanced" \| "cleanPixels" \| "moreCells" \| "largerCells"` |
 | `SafeCanvasOptions` | `{ cols, rows, gutter?, outerGutters?, maxWidth?, maxHeight? }` |
 | `SpotlightOptions` | `{ supportCount?, arrangement?, heroWeight?, gutter? }` |
@@ -133,7 +136,8 @@ type TransformTarget =
 | `GridResult` | `{ m0, order, totalX, totalY, cellW, cellH, gutterW }` |
 | `AspectFitResult` | `{ m0, frameW, frameH, totalWeight }` |
 | `PlaceRectResult` | `{ m0, rectW, rectH, totalWeight }` |
-| `AspectSafeGridResult` | `{ m0, rows, cols, cellCount, cellW, cellH, gutterW, gutterRatio, ppwLandscape, ppwPortrait, gridResult }` |
+| `AspectSafeGridResult` | `{ cellCount, cellAspectLogDelta, landscape: AspectSafeGridOriented, portrait: AspectSafeGridOriented }` |
+| `AspectSafeGridOriented` | `{ m0, rows, cols, canvasW, canvasH, cellWPx, cellHPx, cellAspectRatio, gutterPxX, gutterPxY }` |
 | `SafeCanvasResult` | `{ width, height, totalX, totalY, ppwX, ppwY, gridResult }` |
 | `SpotlightResult` | `{ m0, tileCount }` |
 | `ComparisonResult` | `{ m0, tileCount }` |

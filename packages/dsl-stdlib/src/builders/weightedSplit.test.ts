@@ -158,7 +158,7 @@ describe("weightedSplit", () => {
     expect(result).toBe("1{1}");
   });
 
-  // ---- claimants option (skips GCD reduction) ----
+  // ---- claimants option (GCD reduction still applies) ----
 
   test("claimants provides per-child tokens", () => {
     const result = weightedSplit([1, 1], "row", {
@@ -218,17 +218,31 @@ describe("weightedSplit", () => {
     expect(tokens).toHaveLength(100);
   });
 
-  test("precision with claimants (no GCD reduction)", () => {
+  test("precision with claimants reduces by GCD (claimant alignment is by child index)", () => {
     const result = weightedSplit([1, 3], "row", {
       claimants: ["1", "1{1}"],
       precision: 100,
     });
-    expect(result).toMatch(/^100\[/);
-    const inner = result.slice(4, -1);
-    const tokens = inner.split(",");
-    expect(tokens).toHaveLength(100);
-    expect(tokens[24]).toBe("1");
-    expect(tokens[99]).toBe("1{1}");
+    // Scaled to [25, 75], GCD=25, reduced to [1, 3] = 4 slots.
+    // child0 ("1") occupies slot 0; child1 ("1{1}") occupies slots 1–3
+    // (2 passthroughs + claimant), so the final slot is "1{1}".
+    expect(result).toBe("4[1,0,0,1{1}]");
+  });
+
+  test("claimants with reducible weights GCD-reduces", () => {
+    const result = weightedSplit([50, 50], "col", {
+      claimants: ["1", "-"],
+    });
+    // GCD(50,50)=50, reduced to [1,1].
+    expect(result).toBe("2(1,-)");
+  });
+
+  test("claimants literal mode keeps full slot count", () => {
+    const result = weightedSplit([50, 50], "col", {
+      claimants: ["1", "-"],
+      mode: "literal",
+    });
+    expect(result).toMatch(/^100\(/);
   });
 
   test("precision < weights.length throws", () => {

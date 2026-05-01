@@ -5,9 +5,7 @@
  */
 
 import type { M0String } from "@m0saic/dsl";
-import { weightedTokens } from "./weightedTokens";
-import { container } from "./container";
-import { strip } from "./strip";
+import { weightedSplit } from "./weightedSplit";
 
 // ── Types ─────────────────────────────────────────────────
 
@@ -51,30 +49,45 @@ export function comparison(opts: ComparisonOptions = {}): ComparisonResult {
   // Each pair is: tileA [label] tileB
   const pairAxis = direction === "horizontal" ? "col" : "row";
 
-  function buildPair(): string {
-    const tokens: string[] = [];
-    tokens.push(...weightedTokens(CELL, "1"));
-    if (labelW > 0) tokens.push(...weightedTokens(labelW, "-"));
-    tokens.push(...weightedTokens(CELL, "1"));
-    return container(tokens, pairAxis) as string;
+  function buildPair(): M0String {
+    if (labelW > 0) {
+      return weightedSplit(
+        [CELL, labelW, CELL],
+        pairAxis,
+        { claimants: ["1", "-", "1"] },
+      );
+    }
+    return weightedSplit([CELL, CELL], pairAxis);
   }
 
   const tileCount = pairs * 2;
 
   if (pairs === 1) {
-    const m0 = buildPair() as M0String;
-    return { m0: m0 as M0String, tileCount };
+    return { m0: buildPair(), tileCount };
   }
 
-  // Multiple pairs: stack them along the opposite axis
+  // Multiple pairs: stack them along the opposite axis with optional gutters
+  // between pairs. Express as a weighted split with per-child claimants so
+  // GCD reduction collapses uniform weights uniformly.
   const stackAxis = direction === "horizontal" ? "row" : "col";
   const pairExpr = buildPair();
 
-  const m0 = strip(pairs, stackAxis, {
-    cellWeight: CELL,
-    gutterWeight: gutterW,
-    claimant: pairExpr,
-  });
+  if (!hasGutter) {
+    const weights = Array(pairs).fill(CELL);
+    const claimants = Array(pairs).fill(pairExpr as string);
+    return { m0: weightedSplit(weights, stackAxis, { claimants }), tileCount };
+  }
 
-  return { m0, tileCount };
+  // Interleave: pair, gutter, pair, gutter, ..., pair
+  const weights: number[] = [];
+  const claimants: string[] = [];
+  for (let i = 0; i < pairs; i++) {
+    if (i > 0) {
+      weights.push(gutterW);
+      claimants.push("-");
+    }
+    weights.push(CELL);
+    claimants.push(pairExpr as string);
+  }
+  return { m0: weightedSplit(weights, stackAxis, { claimants }), tileCount };
 }

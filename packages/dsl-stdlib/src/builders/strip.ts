@@ -1,7 +1,7 @@
 import type { M0String } from "@m0saic/dsl";
 import type { ContainerAxis } from "./container";
-import { weightedTokens } from "./weightedTokens";
-import { container } from "./container";
+import type { ReductionMode } from "../transforms/types";
+import { weightedSplit } from "./weightedSplit";
 
 /** Options for {@link strip}. */
 export interface StripOptions {
@@ -37,6 +37,15 @@ export interface StripOptions {
    * (e.g. the output of another builder like {@link strip} or {@link equalSplit}).
    */
   claimant?: M0String | string;
+  /**
+   * Weight encoding mode.
+   * - `"optimized"` (default): reduce all weights (`cellWeight`, `gutterWeight`)
+   *   by their greatest common divisor for compact DSL output.
+   * - `"literal"`: emit the full slot count exactly as specified — useful when
+   *   downstream code needs to address a specific slot index (animation
+   *   keyframes, debug introspection).
+   */
+  mode?: ReductionMode;
 }
 
 /**
@@ -97,6 +106,7 @@ export function strip(
     gutterWeight = 0,
     outerGutters = false,
     claimant = "1",
+    mode = "optimized",
   } = opts;
 
   if (!Number.isInteger(cellWeight) || cellWeight < 1) {
@@ -111,24 +121,33 @@ export function strip(
   }
 
   const hasGutter = gutterWeight > 0;
-  const slots: string[] = [];
+  const weights: number[] = [];
+  const claimants: string[] = [];
 
   if (!hasGutter) {
     for (let i = 0; i < count; i++) {
-      slots.push(...weightedTokens(cellWeight, claimant));
+      weights.push(cellWeight);
+      claimants.push(claimant);
     }
   } else if (outerGutters) {
-    slots.push(...weightedTokens(gutterWeight, "-"));
+    weights.push(gutterWeight);
+    claimants.push("-");
     for (let i = 0; i < count; i++) {
-      slots.push(...weightedTokens(cellWeight, claimant));
-      slots.push(...weightedTokens(gutterWeight, "-"));
+      weights.push(cellWeight);
+      claimants.push(claimant);
+      weights.push(gutterWeight);
+      claimants.push("-");
     }
   } else {
     for (let i = 0; i < count; i++) {
-      if (i > 0) slots.push(...weightedTokens(gutterWeight, "-"));
-      slots.push(...weightedTokens(cellWeight, claimant));
+      if (i > 0) {
+        weights.push(gutterWeight);
+        claimants.push("-");
+      }
+      weights.push(cellWeight);
+      claimants.push(claimant);
     }
   }
 
-  return container(slots, axis);
+  return weightedSplit(weights, axis, { claimants, mode });
 }

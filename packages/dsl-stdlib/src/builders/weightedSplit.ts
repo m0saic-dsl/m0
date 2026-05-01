@@ -113,9 +113,10 @@ export function weightedSplit(
     effective = weights;
   }
 
-  // GCD reduction in optimized mode (only when no custom claimants —
-  // per-child claimants depend on positional alignment with weights)
-  if (mode === "optimized" && !claimants) {
+  // GCD reduction in optimized mode. Per-child claimants are indexed by
+  // child position (not slot position), so reducing every weight by the
+  // same divisor preserves their alignment and is safe with `claimants`.
+  if (mode === "optimized") {
     const d = gcdArray(effective);
     if (d > 1) effective = effective.map((w) => w / d);
   }

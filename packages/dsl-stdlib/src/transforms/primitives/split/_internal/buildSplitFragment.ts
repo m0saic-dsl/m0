@@ -1,7 +1,12 @@
 import type { M0Axis } from "@m0saic/dsl";
+import type { ReductionMode } from "../../../types";
 
-/** Weight encoding mode for split construction. */
-export type WeightMode = "optimized" | "literal";
+/**
+ * Weight encoding mode for split construction.
+ * @deprecated Use `ReductionMode` from `@m0saic/dsl-stdlib` — kept as an
+ * alias for backward compatibility with v1.0.0 consumers.
+ */
+export type WeightMode = ReductionMode;
 
 /**
  * Compute the greatest common divisor of two non-negative integers.

@@ -1,6 +1,6 @@
 // Unified transform API
 export * from "./unified";
-export type { TransformTarget } from "./types";
+export type { TransformTarget, ReductionMode } from "./types";
 
 // Non-targeted transforms
 export { addOverlayToAllFrames } from "./composed/overlay/addOverlayToAllFrames";

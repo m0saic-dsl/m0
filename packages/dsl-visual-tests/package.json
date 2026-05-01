@@ -1,6 +1,6 @@
 {
   "name": "@m0saic/dsl-visual-tests",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Visual golden tests and reusable test harness for the m0 DSL",
   "keywords": [
     "m0saic",
@@ -48,8 +48,8 @@
   },
   "dependencies": {
     "@m0saic/dsl": "^1.0.0",
-    "@m0saic/dsl-file-formats": "^1.0.0",
-    "@m0saic/dsl-stdlib": "^1.0.0"
+    "@m0saic/dsl-file-formats": "^1.1.0",
+    "@m0saic/dsl-stdlib": "^2.0.0"
   },
   "devDependencies": {}
 }

@@ -19,6 +19,18 @@ function goldenId(
   return `build-grid-m0saic__${rows}x${cols}__gutter_${g}__outer_${outerGutters}`;
 }
 
+/**
+ * Pick an integer scale such that `min(totalX, totalY) * scale >= MIN_DIM`.
+ * Keeps the canvas a clean multiple of the grid totals (preserves
+ * quantization) while ensuring the rendered preview is large enough to
+ * actually inspect visually.
+ */
+const MIN_CANVAS_DIM = 800;
+function pickScale(totalX: number, totalY: number): number {
+  const minTotal = Math.min(totalX, totalY);
+  return Math.max(20, Math.ceil(MIN_CANVAS_DIM / minTotal));
+}
+
 // ---------------------------------------------------------------------------
 // Golden wireframe PNG tests
 // ---------------------------------------------------------------------------
@@ -38,8 +50,8 @@ describe("grid goldens", () => {
     assertWireframeGolden({
       id: goldenId(opts.rows, opts.cols, opts.gutter, opts.outerGutters),
       m0: r.m0,
-      width: r.totalX * 20,
-      height: r.totalY * 20,
+      width: r.totalX * pickScale(r.totalX, r.totalY),
+      height: r.totalY * pickScale(r.totalX, r.totalY),
       goldensDir: GOLDENS_DIR,
     });
   });
@@ -58,8 +70,8 @@ describe("grid goldens", () => {
     assertWireframeGolden({
       id: goldenId(opts.rows, opts.cols, opts.gutter, opts.outerGutters),
       m0: r.m0,
-      width: r.totalX * 20,
-      height: r.totalY * 20,
+      width: r.totalX * pickScale(r.totalX, r.totalY),
+      height: r.totalY * pickScale(r.totalX, r.totalY),
       goldensDir: GOLDENS_DIR,
     });
   });
@@ -78,8 +90,8 @@ describe("grid goldens", () => {
     assertWireframeGolden({
       id: goldenId(opts.rows, opts.cols, opts.gutter, opts.outerGutters),
       m0: r.m0,
-      width: r.totalX * 20,
-      height: r.totalY * 20,
+      width: r.totalX * pickScale(r.totalX, r.totalY),
+      height: r.totalY * pickScale(r.totalX, r.totalY),
       goldensDir: GOLDENS_DIR,
     });
   });
@@ -92,8 +104,8 @@ describe("grid goldens", () => {
     assertWireframeGolden({
       id: goldenId(opts.rows, opts.cols, opts.gutter, opts.outerGutters),
       m0: r.m0,
-      width: r.totalX * 20,
-      height: r.totalY * 20,
+      width: r.totalX * pickScale(r.totalX, r.totalY),
+      height: r.totalY * pickScale(r.totalX, r.totalY),
       goldensDir: GOLDENS_DIR,
     });
   });
@@ -106,8 +118,8 @@ describe("grid goldens", () => {
     assertWireframeGolden({
       id: goldenId(opts.rows, opts.cols, opts.gutter, opts.outerGutters),
       m0: r.m0,
-      width: r.totalX * 20,
-      height: r.totalY * 20,
+      width: r.totalX * pickScale(r.totalX, r.totalY),
+      height: r.totalY * pickScale(r.totalX, r.totalY),
       goldensDir: GOLDENS_DIR,
     });
   });
@@ -126,8 +138,8 @@ describe("grid goldens", () => {
     assertWireframeGolden({
       id: goldenId(opts.rows, opts.cols, opts.gutter, opts.outerGutters),
       m0: r.m0,
-      width: r.totalX * 20,
-      height: r.totalY * 20,
+      width: r.totalX * pickScale(r.totalX, r.totalY),
+      height: r.totalY * pickScale(r.totalX, r.totalY),
       goldensDir: GOLDENS_DIR,
     });
   });
@@ -140,8 +152,8 @@ describe("grid goldens", () => {
     assertWireframeGolden({
       id: goldenId(opts.rows, opts.cols, 0, false),
       m0: r.m0,
-      width: r.totalX * 20,
-      height: r.totalY * 20,
+      width: r.totalX * pickScale(r.totalX, r.totalY),
+      height: r.totalY * pickScale(r.totalX, r.totalY),
       goldensDir: GOLDENS_DIR,
     });
   });
@@ -154,8 +166,8 @@ describe("grid goldens", () => {
     assertWireframeGolden({
       id: goldenId(opts.rows, opts.cols, 0, false),
       m0: r.m0,
-      width: r.totalX * 20,
-      height: r.totalY * 20,
+      width: r.totalX * pickScale(r.totalX, r.totalY),
+      height: r.totalY * pickScale(r.totalX, r.totalY),
       goldensDir: GOLDENS_DIR,
     });
   });

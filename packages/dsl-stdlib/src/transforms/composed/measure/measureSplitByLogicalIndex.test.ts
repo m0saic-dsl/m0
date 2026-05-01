@@ -116,15 +116,27 @@ describe("measureSplitByLogicalIndex", () => {
   // ── New: adjacent distinct group examples ──
 
   test("two adjacent groups covering all slots => 2 claimants, no gaps", () => {
-    // N=6, groups [{a:0,b:2},{a:3,b:5}] => 6(>,>,F,>,>,F)
+    // N=6, groups [{a:0,b:2},{a:3,b:5}] => optimized canonical form is
+    // 2(1,1) (run lengths [3, 3] share a GCD of 3, so the fragment
+    // collapses). Verify both the optimized default and the literal
+    // opt-out preserve 2 claimants and no gaps.
     const out = measureSplitByLogicalIndex("1", 0, "col", 6, [
       { a: 0, b: 2 },
       { a: 3, b: 5 },
     ]);
     expectValid(out);
-    expect(out).toBe("6(0,0,1,0,0,1)");
+    expect(out).toBe("2(1,1)");
     expect(countClaimants(out)).toBe(2);
     expect(countChar(out, "-")).toBe(0);
+
+    const literal = measureSplitByLogicalIndex("1", 0, "col", 6, [
+      { a: 0, b: 2 },
+      { a: 3, b: 5 },
+    ], { measureMode: "literal" });
+    expectValid(literal);
+    expect(literal).toBe("6(0,0,1,0,0,1)");
+    expect(countClaimants(literal)).toBe(2);
+    expect(countChar(literal, "-")).toBe(0);
   });
 
   test("singleton adjacent groups => N(F,F)", () => {

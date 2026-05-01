@@ -58,13 +58,36 @@ import * as path from "path";
 import * as os from "os";
 import { spawnSync } from "child_process";
 import { serializeM0File } from "@m0saic/dsl-file-formats";
-// writeToolchainSidecar writes diagnostic _toolchain.json metadata.
-// In the standalone DSL repo it's a no-op — the full implementation
-// lives in @m0saic/platform (not a public dependency).
-function writeToolchainSidecar(_dir: string): void {}
 
 /** Fixed epoch for deterministic .m0 file headers in tests. */
 const DETERMINISTIC_DATE = new Date("2026-04-15T00:00:00.000Z");
+
+/**
+ * Inline minimal toolchain sidecar. Writes _toolchain.json with the host's
+ * node/OS/arch so cross-machine golden mismatches can be diagnosed.
+ *
+ * Vendored from @m0saic/platform/toolchain so this published package has no
+ * private-package runtime dependency. Idempotent per directory per process.
+ */
+const _toolchainWritten = new Set<string>();
+function writeToolchainSidecar(dir: string): void {
+  const resolved = path.resolve(dir);
+  if (_toolchainWritten.has(resolved)) return;
+  _toolchainWritten.add(resolved);
+  fs.mkdirSync(resolved, { recursive: true });
+  const sidecar = {
+    nodeVersion: process.version,
+    platform: process.platform,
+    arch: process.arch,
+    osRelease: os.release(),
+    generatedAt: new Date().toISOString(),
+  };
+  fs.writeFileSync(
+    path.join(resolved, "_toolchain.json"),
+    JSON.stringify(sidecar, null, 2) + "\n",
+    "utf8",
+  );
+}
 
 function isVerbose(): boolean {
   return process.env.M0SAIC_GOLDEN_VERBOSE === "1";

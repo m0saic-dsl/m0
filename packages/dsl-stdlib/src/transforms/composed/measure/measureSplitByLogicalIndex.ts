@@ -1,4 +1,5 @@
 import type { M0Axis } from "@m0saic/dsl";
+import type { ReductionMode } from "../../types";
 import { type OpOutputOptions } from "../../_internal/output";
 import { replaceNodeByLogicalIndex } from "../../primitives/replace/replaceNodeByLogicalIndex";
 import {
@@ -36,7 +37,7 @@ export function measureSplitByLogicalIndex(
   axis: M0Axis,
   N: number,
   ranges: MeasureRange[],
-  opts?: OpOutputOptions,
+  opts?: OpOutputOptions & { measureMode?: ReductionMode },
 ): string {
   if (!Number.isFinite(targetIndex) || targetIndex < 0)
     throw new Error("targetIndex must be >= 0");
@@ -44,7 +45,7 @@ export function measureSplitByLogicalIndex(
   validateMeasureRanges(N, ranges);
 
   const normalized = normalizeGroups(ranges);
-  const replacement = buildMeasureFragment(axis, N, normalized);
+  const replacement = buildMeasureFragment(axis, N, normalized, opts?.measureMode);
 
   const result = replaceNodeByLogicalIndex(m0, targetIndex, replacement, opts);
   if (result === null) {

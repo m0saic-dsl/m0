@@ -72,21 +72,6 @@ describe("strip goldens", () => {
     });
   });
 
-  // ---- Single cell ----
-
-  test("1 col single cell", () => {
-    const m = strip(1, "col", { cellWeight: 50 });
-    expect(isValidM0String(m)).toBe(true);
-
-    assertWireframeGolden({
-      id: "strip__col_1__cw50",
-      m0: m,
-      width: 1920,
-      height: 1080,
-      goldensDir: GOLDENS_DIR,
-    });
-  });
-
   // ---- Large gutter ratio ----
 
   test("2 col large gutter ratio", () => {

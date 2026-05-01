@@ -15,6 +15,8 @@ export function serializeM0cFile(opts: {
   meta?: M0FileMeta | null;
   labels?: Record<string /* stableKey */, M0Label> | null;
   deriveImage?: M0cDeriveImage | null;
+  /** Free-form JSON. Round-trips unchanged. */
+  custom?: unknown | null;
 }): string {
   const created = opts.created ?? new Date();
 
@@ -43,6 +45,7 @@ export function serializeM0cFile(opts: {
     m0,
     labels,
     derive,
+    custom: opts.custom ?? null,
   };
 
   return JSON.stringify(file, null, 2) + "\n";
@@ -155,6 +158,7 @@ export function parseM0cFile(jsonText: string): M0cFile {
     m0,
     labels,
     derive,
+    custom: r.custom === undefined ? null : r.custom,
   };
 }
 

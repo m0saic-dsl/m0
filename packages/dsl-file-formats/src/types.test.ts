@@ -9,6 +9,9 @@ import type {
   M0cFile,
   M0cDeriveImage,
   M0cDeriveImageMime,
+  M0pFile,
+  M0pVariantEntry,
+  M0pRegions,
 } from "./types";
 
 describe("types", () => {
@@ -38,6 +41,7 @@ describe("types", () => {
       m0: "1",
       labels: null,
       derive: { image: null },
+      custom: null,
     };
     expect(file.format).toBe("m0c");
     expect(file.m0).toBe("1");
@@ -53,6 +57,54 @@ describe("types", () => {
     };
     expect(Object.keys(empty)).toHaveLength(0);
     expect(Object.keys(full)).toHaveLength(4);
+  });
+
+  it("M0pFile has required shape", () => {
+    const variant: M0pVariantEntry = {
+      meta: null,
+      size: { width: 1920, height: 1080 },
+      m0: "1",
+      labels: null,
+      derive: { image: null },
+      custom: null,
+    };
+    const pack: M0pFile = {
+      format: "m0p",
+      version: 1,
+      created: "2026-04-26T00:00:00.000Z",
+      app: null,
+      appVersion: null,
+      meta: null,
+      regions: null,
+      custom: null,
+      variants: { desktop: variant },
+    };
+    expect(pack.format).toBe("m0p");
+    expect(Object.keys(pack.variants)).toEqual(["desktop"]);
+  });
+
+  it("M0pRegions accepts optional description and color", () => {
+    const regions: M0pRegions = {
+      headline: { description: "primary", color: "#ef7525" },
+      hero: {},
+    };
+    expect(Object.keys(regions)).toHaveLength(2);
+  });
+
+  it("M0pVariantEntry allows optional pack-level overrides", () => {
+    const v: M0pVariantEntry = {
+      meta: null,
+      size: { width: 100, height: 100 },
+      m0: "1",
+      labels: null,
+      derive: { image: null },
+      custom: null,
+      created: "2025-01-01T00:00:00.000Z",
+      app: "other",
+      appVersion: "9.9.9",
+    };
+    expect(v.app).toBe("other");
+    expect(v.created).toBe("2025-01-01T00:00:00.000Z");
   });
 
   it("M0cDeriveImage accepts valid MIME types", () => {
