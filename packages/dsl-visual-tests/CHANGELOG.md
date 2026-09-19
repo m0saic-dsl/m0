@@ -1,5 +1,94 @@
 # Changelog
 
+## 2.0.0 — 2026-09-19
+
+### Real-world template goldens — flattened+inset layout corpus
+
+New golden suite `src/realWorld/realWorld.goldens.test.ts` — a curated corpus of
+real production template layouts, seeded from the third `--save-m0` sidecar
+(`<base>.flattened.inset.m0`): the fully-flattened m0 with each source's
+render-time `placement.inset` baked back into the base geometry. This extends
+the suite beyond hand-written core-DSL cases and stdlib-generator output to
+track **complex real layouts** for byte-correctness — donut charts, gutter
+grids, treemaps, masonry sheets, dashboard compositions.
+
+17 templates (20 cases — three carry a `__no-inset` twin showing the plain
+flattened base×fiber difference):
+
+- **charts / cards:** `alpine/donut/v3`, `alpine/bar-graph/v1`,
+  `alpine/kpi-card/v2`, `alpine/leaderboard/v1`, `alpine/commit-feed/v2`,
+  `alpine/contributor-table/v1`
+- **baked-inset showcases** (gutters that live in the fiber → a `__no-inset`
+  twin): `alpine/heatmap/v2`, `alpine/treemap/v2` (desktop aspect),
+  `collage/image-collage/v1`
+- **compositions:** `dsl-tutorial/v1`, `theming/v1`, and six
+  `hero/ffmpeg-pulse/*` beats (`kpi-overview`, `changes-breakdown`,
+  `contributions`, `top-contributors`, `activity-trend`, `notable-commits`) —
+  which compose sub-templates whose gutters ride the fiber, so their baked seeds
+  are dense (60–120 frames) and inset-bearing.
+
+And a new **top-level `brand/` tier** (peer of `coreDsl` / `stdlib` /
+`realWorld`) with the three canonical m0saic brand-mark layouts taken straight
+from `@m0saic/dictionary` (`brand/{m0saic-pattern, m-33, m0}`) — the m0saic
+pattern, the mosaic M, and the M0 logotype. These have no insets (the M / M0
+carry per-cell masks; the pattern is pure rect geometry), so their seed is the
+raw dictionary m0. Their stills use a SMOKE render: an on-the-fly doc reads the
+`.m0` fixture and fills every render frame with one flat brand-orange tile
+(`#f97316`), each carrying its per-cell inline-mask for the masked marks (M / M0
+— wired the `@m0saic/brand/logo/v3` way, registry entry +
+`getSourceOrderStableKeys`; the pattern is pure rects) — a uniform, settled
+brand-orange rendering of the real mark, no animation.
+
+The single-copy golden logic (`.m0` gate + wireframe/still references, recursive
+discovery) is factored into a shared `src/__harness__/singleCopyGolden.ts` that
+both the `realWorld` and `brand` tiers use.
+
+### Platform-independent (single-copy) goldens + color-map layout-match e2e
+
+Two coupled changes make this package about **look, not bytes**.
+
+#### 1. Single-copy, platform-independent goldens (darwin/win32 split removed)
+
+The dual-platform pixel split was removed **for this package only** (core
+`__tests__` visual specs and the dictionary visual-tests stay byte-exact +
+dual-platform — those are about bytes). Every tier — `coreDsl`, `stdlib`,
+`realWorld`, `brand` — now commits, side by side in `__goldens__/`:
+
+- `<id>.m0` — the byte-correctness GATE: engine-independent text, byte-compared,
+  identical on every platform.
+- `<id>.png` — ONE wireframe reference, reviewed by eye (NOT byte-compared — one
+  copy can't match every rasterizer).
+
+The 115 stdlib/coreDsl pixel goldens were flattened out of their `win32/` ·
+`darwin/` slots (both slots + `_toolchain.json` sidecars deleted). The default
+verify is now cross-platform and **ffmpeg-free** (compare the `.m0`, check the
+references exist) — ~6× faster (≈100s → ≈15s). The single-copy logic is factored
+into `src/__harness__/singleCopyGolden.ts`; the stdlib/coreDsl harness
+(`src/stdlib/__harness__/goldens.ts`) drops the platform slot, PNG byte-compare,
+and pinned-toolchain requirement.
+
+#### 2. Color-map layout-match e2e (`<id>.match`, opt-in)
+
+Byte goldens are the wrong tool: a font / anti-aliasing change repaints
+thousands of pixels while the LAYOUT is unchanged. What matters is that every
+declared rect renders WHERE IT SHOULD IN SPACE. The new
+`test:dsl-visual-tests:layout` (part of `test:release`) verifies exactly that,
+with no stored image and no platform duplication:
+
+1. Parse the m0 → render frames; assign each a unique flat color by logical
+   index.
+2. Render the m0 with those per-cell fills → a color map of the layout.
+3. Sample an anchored probe DEEP in each visible cell's interior (≥4px clear of
+   its own edges AND any overlay cutting through it, so a ≤1px boundary rounding
+   or edge AA never bites) and assert the pixel is the cell's color.
+
+Probes + expected colors derive from the m0 and freeze into a committed
+`<id>.match`. If a rect renders anywhere but where the geometry says, some probe
+sees a different cell's color → caught. A single `.match` verifies identically on
+every platform (flat-color interiors don't move with fonts/AA/rasterizer). It
+RENDERS (ffmpeg), so it is opt-in / a release gate — the default verify stays
+ffmpeg-free. 138 cases across all four tiers, no zero-probe cases.
+
 ## 1.1.0 — 2026-05-01
 
 ### Coverage audit + stdlib v2.0.0 tracking

@@ -1,93 +1,62 @@
 /**
- * DSL-local golden PNG + .m0 harness for @m0saic/dsl-visual-tests.
+ * DSL-local golden harness for @m0saic/dsl-visual-tests (stdlib + coreDsl tiers).
  *
- * Renders m0 strings to wireframe PNGs via the `m0saic make-wireframe`
- * CLI and compares them byte-for-byte against committed golden PNGs.
- * Additionally, writes a sibling `.m0` file for each golden that captures
- * the exact canonical layout string with deterministic metadata.
+ * ## Single-copy, platform-INDEPENDENT (founder ruling 2026-07-20)
  *
- * ## Modes (controlled by env var)
+ * This package is about LOOK, not bytes — so it is NOT dual-platform. Each case
+ * commits two files side by side in `__goldens__/`:
  *
- *   M0SAIC_UPDATE_GOLDENS=1  →  Generate / overwrite goldens.
- *                                Both the PNG and the sibling .m0 are written
- *                                directly to the __goldens__ directory.
- *                                Tests pass silently.
+ *   - `<id>.m0`  — the canonical layout string with deterministic metadata. This
+ *     is the byte-correctness GATE: engine-independent text, byte-compared and
+ *     identical on every platform.
+ *   - `<id>.png` — a single wireframe reference for visual inspection, minted in
+ *     update mode. It is NOT byte-compared (one copy can't match every
+ *     platform's rasterizer); it is reviewed by eye in PR diffs. The realWorld /
+ *     brand tiers use the same model via `../../__harness__/singleCopyGolden`.
  *
- *   (unset / default)         →  Verify mode.
- *                                Renders to a temp file, byte-compares against
- *                                the golden PNG. On mismatch an __actual__ PNG
- *                                is saved next to the golden and the test throws
- *                                with both paths for easy visual diffing.
- *                                Also verifies the sibling .m0 matches exactly.
- *                                On missing .m0: creates it and fails.
- *                                On .m0 mismatch: writes .__actual__.m0 and fails.
+ * The OTHER visual suites — core `__tests__/*.spec.ts` and the dictionary
+ * visual-tests — stay dual-platform + byte-exact (they are about bytes) and are
+ * unaffected by this harness.
  *
- * ## Verbose output
+ * ## Modes (env var)
+ *
+ *   M0SAIC_UPDATE_GOLDENS=1  →  Update: render the wireframe PNG + write the
+ *                                sibling `.m0`, both directly into `__goldens__/`.
+ *   (unset)                   →  Verify: byte-compare the `.m0` (the gate) and
+ *                                assert the reference PNG exists. Cross-platform
+ *                                and ffmpeg-free — no render, no toolchain pin.
  *
  *   M0SAIC_GOLDEN_VERBOSE=1   →  Print progress logs and stream CLI output.
  *
  * ## How to run
  *
- *   # Verify (CI / normal):
- *   npm test -- --testPathPattern dsl-visual-tests
- *
- *   # Update goldens after an intentional change:
- *   M0SAIC_UPDATE_GOLDENS=1 npm test -- --testPathPattern dsl-visual-tests
- *
- * ## Toolchain pinning
- *
- * Golden PNGs are byte-exact comparisons. They are tied to a specific
- * rendering toolchain (ffmpeg version, OS graphics stack). The
- * `_toolchain.json` sidecar in each `__goldens__` directory records the
- * exact versions used to generate the committed goldens.
- *
- * If your local toolchain differs (e.g., different ffmpeg version, different
- * OS), goldens may fail due to pixel-level rendering differences — not DSL
- * regressions. In that case:
- *
- *   1. Regenerate: `M0SAIC_UPDATE_GOLDENS=1 npm test -- ...`
- *   2. Visually inspect the diff to confirm it's toolchain noise, not a bug
- *   3. Do NOT commit regenerated goldens unless CI uses the same toolchain
- *
- * DSL geometry correctness (rectangles, positions, sizes) is tested
- * independently by `@m0saic/dsl`'s unit tests. Visual goldens test the
- * rendered output, which depends on the full rendering pipeline.
+ *   npm test -- --testPathPatterns dsl-visual-tests                       # verify
+ *   M0SAIC_UPDATE_GOLDENS=1 npm test -- --testPathPatterns dsl-visual-tests  # mint
  */
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 import { spawnSync } from "child_process";
 import { serializeM0File } from "@m0saic/dsl-file-formats";
+import { writeMatch } from "../../__harness__/layoutMatch";
+
+/**
+ * Temp-dir prefix shared by every m0saic tool (`[m0saic]_<descriptor>-`), so
+ * the desktop's temp-cleanup sweep recognizes harness scratch dirs. Kept
+ * local: this package must not depend on the private platform package.
+ */
+const M0SAIC_TMP_PREFIX = "[m0saic]_";
+function makeM0saicTempPrefix(descriptor: string): string {
+  if (!/^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(descriptor)) {
+    throw new Error(
+      `makeM0saicTempPrefix: descriptor must match /^[A-Za-z0-9][A-Za-z0-9_-]*$/, got ${JSON.stringify(descriptor)}`,
+    );
+  }
+  return `${M0SAIC_TMP_PREFIX}${descriptor}-`;
+}
 
 /** Fixed epoch for deterministic .m0 file headers in tests. */
 const DETERMINISTIC_DATE = new Date("2026-04-15T00:00:00.000Z");
-
-/**
- * Inline minimal toolchain sidecar. Writes _toolchain.json with the host's
- * node/OS/arch so cross-machine golden mismatches can be diagnosed.
- *
- * Vendored from @m0saic/platform/toolchain so this published package has no
- * private-package runtime dependency. Idempotent per directory per process.
- */
-const _toolchainWritten = new Set<string>();
-function writeToolchainSidecar(dir: string): void {
-  const resolved = path.resolve(dir);
-  if (_toolchainWritten.has(resolved)) return;
-  _toolchainWritten.add(resolved);
-  fs.mkdirSync(resolved, { recursive: true });
-  const sidecar = {
-    nodeVersion: process.version,
-    platform: process.platform,
-    arch: process.arch,
-    osRelease: os.release(),
-    generatedAt: new Date().toISOString(),
-  };
-  fs.writeFileSync(
-    path.join(resolved, "_toolchain.json"),
-    JSON.stringify(sidecar, null, 2) + "\n",
-    "utf8",
-  );
-}
 
 function isVerbose(): boolean {
   return process.env.M0SAIC_GOLDEN_VERBOSE === "1";
@@ -95,8 +64,6 @@ function isVerbose(): boolean {
 
 function log(msg: string): void {
   if (!isVerbose()) return;
-  // Jest captures console output; that's fine—this is explicitly opt-in.
-  // Prefix so it's easy to spot in noisy runs.
   console.log(`[m0saic-golden] ${msg}`);
 }
 
@@ -130,12 +97,9 @@ function shouldUpdate(): boolean {
  * Resolve the m0saic CLI binary. Prefer the locally-linked package.
  */
 function resolveCliBin(): string {
-  // Walk up from the package root to the repo root's node_modules/.bin
   const pkgRoot = path.resolve(__dirname, "..", "..", "..", "..");
   const repoBin = path.join(pkgRoot, "node_modules", ".bin", "m0saic");
   if (fs.existsSync(repoBin) || fs.existsSync(repoBin + ".cmd")) return repoBin;
-
-  // Fallback: assume globally installed
   return "m0saic";
 }
 
@@ -171,11 +135,92 @@ function buildM0Content(opts: WireframeGoldenOpts): string {
 }
 
 /**
- * Render a m0 string to a wireframe PNG and compare against a golden.
- * Also writes / verifies a sibling `.m0` golden file.
- *
- * Always uses `--mfile` to avoid shell quoting issues.
- * Uses `shell: true` on Windows so that `.cmd` wrappers resolve correctly.
+ * Render an m0 to a single-copy wireframe reference PNG via the `m0saic`
+ * make-wireframe CLI. Used only in update mode. No pinned toolchain — the PNG
+ * is a visual reference, not a byte-exact golden, so any resolved ffmpeg is fine.
+ * Always uses `--mfile` to avoid shell quoting; `shell: true` on Windows so
+ * `.cmd` wrappers resolve.
+ */
+function renderWireframeReference(
+  id: string,
+  m0Content: string,
+  width: number,
+  height: number,
+  outputPath: string,
+): void {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), makeM0saicTempPrefix("golden")));
+  try {
+    const mfilePath = path.join(tmpDir, `${id}.m0`);
+    fs.writeFileSync(mfilePath, m0Content, "utf8");
+
+    // Goldens render with an opaque WHITE canvas (founder ruling 2026-07-19):
+    // reviewable images instead of transparent ink-only. Passed as a props FILE
+    // via readJsonArg's `@path` syntax — inline JSON breaks under Windows shell.
+    const propsPath = path.join(tmpDir, "wireframe-props.json");
+    fs.writeFileSync(propsPath, JSON.stringify({ background: "white" }), "utf8");
+
+    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+
+    const bin = resolveCliBin();
+    const isWin = process.platform === "win32";
+    const verbose = isVerbose();
+    const args = [
+      "make-wireframe",
+      "--mfile",
+      mfilePath,
+      "-w",
+      String(width),
+      "-h",
+      String(height),
+      "-o",
+      outputPath,
+      "--props",
+      `@${propsPath}`,
+      "--format",
+      "image",
+      "--quiet",
+    ];
+    log(`spawn: ${bin} ${args.join(" ")}`);
+
+    const result = spawnSync(bin, args, {
+      stdio: verbose ? "inherit" : "pipe",
+      timeout: 60_000,
+      windowsHide: true,
+      shell: isWin,
+    });
+
+    if (result.error) {
+      throw new Error(
+        `Failed to spawn m0saic CLI: ${result.error.message}\n` +
+          `  binary: ${bin}\n` +
+          `If this is EACCES/ENOENT, the CLI is not built + linked: ` +
+          `(cd packages/cli && npm run build && npm link)`,
+      );
+    }
+    if (result.status !== 0) {
+      const stderr = !verbose ? result.stderr?.toString("utf8") ?? "" : "";
+      const stdout = !verbose ? result.stdout?.toString("utf8") ?? "" : "";
+      throw new Error(
+        `m0saic make-wireframe exited with code ${result.status}\n` +
+          (stderr ? `  stderr: ${stderr}\n` : "") +
+          (stdout ? `  stdout: ${stdout}\n` : ""),
+      );
+    }
+    if (!fs.existsSync(outputPath)) {
+      throw new Error(`Wireframe render produced no output at ${outputPath}`);
+    }
+  } finally {
+    try {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
+/**
+ * Single-copy golden for an m0 string: mint / verify a `<id>.m0` (the gate) and
+ * a `<id>.png` wireframe reference, side by side in `goldensDir`.
  */
 export function assertWireframeGolden(opts: WireframeGoldenOpts): void {
   const { id, width, height } = opts;
@@ -187,177 +232,61 @@ export function assertWireframeGolden(opts: WireframeGoldenOpts): void {
 
   const goldenPngPath = path.join(goldensDir, `${id}.png`);
   const goldenM0Path = path.join(goldensDir, `${id}.m0`);
-
-  writeToolchainSidecar(goldensDir);
-
-  log(`id="${id}" mode=${update ? "update" : "verify"} size=${width}x${height}`);
-  log(`goldensDir=${goldensDir}`);
-  log(`goldenPngPath=${goldenPngPath}`);
-
-  // Build deterministic .m0 content (used for both temp CLI input and golden)
   const m0Content = buildM0Content(opts);
 
-  // Write m0 string to a temp .m0 file via DSL serializer
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "m0saic-golden-"));
-  const mfilePath = path.join(tmpDir, `${id}.m0`);
-
-  fs.writeFileSync(mfilePath, m0Content, "utf8");
-  log(`wrote mfile=${mfilePath}`);
-
-  // Determine where to render
-  const outputPath = update ? goldenPngPath : path.join(tmpDir, `${id}.png`);
-  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-
-  log(`outputPath=${outputPath}`);
-
-  // Invoke m0saic make-wireframe
-  const bin = resolveCliBin();
-  const args = [
-    "make-wireframe",
-    "--mfile",
-    mfilePath,
-    "-w",
-    String(width),
-    "-h",
-    String(height),
-    "-o",
-    outputPath,
-    "--format",
-    "image",
-    "--quiet",
-  ];
-
-  log(`spawn: ${bin} ${args.join(" ")}`);
-
-  const isWin = process.platform === "win32";
-  const verbose = isVerbose();
-
-  const result = spawnSync(bin, args, {
-    // In verbose mode, stream CLI output live so you see progress / ffmpeg logs.
-    // Otherwise, capture output to attach on errors.
-    stdio: verbose ? "inherit" : "pipe",
-    timeout: 60_000,
-    windowsHide: true,
-    shell: isWin,
-  });
-
-  // Clean up temp .m0 file
-  try {
-    fs.unlinkSync(mfilePath);
-  } catch {
-    /* ignore */
-  }
-
-  if (result.error) {
-    cleanup(tmpDir);
-    throw new Error(
-      `Failed to spawn m0saic CLI: ${result.error.message}\n` +
-        `  binary: ${bin}\n` +
-        `  args: ${args.join(" ")}`
-    );
-  }
-
-  if (result.status !== 0) {
-    // If verbose=true, output was already streamed. Still provide best-effort details.
-    const stderr = !verbose ? result.stderr?.toString("utf8") ?? "" : "";
-    const stdout = !verbose ? result.stdout?.toString("utf8") ?? "" : "";
-    cleanup(tmpDir);
-    throw new Error(
-      `m0saic make-wireframe exited with code ${result.status}\n` +
-        (stderr ? `  stderr: ${stderr}\n` : "") +
-        (stdout ? `  stdout: ${stdout}\n` : "") +
-        (!stderr && !stdout && verbose
-          ? `  (output was streamed; re-run without M0SAIC_GOLDEN_VERBOSE=1 to capture logs)\n`
-          : "")
-    );
-  }
-
-  if (!fs.existsSync(outputPath)) {
-    cleanup(tmpDir);
-    throw new Error(`Wireframe render produced no output at ${outputPath}`);
-  }
+  log(`id="${id}" mode=${update ? "update" : "verify"} size=${width}x${height}`);
 
   // -------------------------------------------------------------------
-  // Update mode — write both PNG and .m0 golden
+  // Update mode — render the reference PNG + write the .m0
   // -------------------------------------------------------------------
   if (update) {
+    renderWireframeReference(id, m0Content, width, height, goldenPngPath);
     fs.mkdirSync(path.dirname(goldenM0Path), { recursive: true });
     fs.writeFileSync(goldenM0Path, m0Content, "utf8");
+    // Layout signature for the opt-in color-map e2e (M0SAIC_LAYOUT_MATCH=1).
+    writeMatch(goldensDir, id, opts.m0, width, height);
     log(`updated golden PNG: ${goldenPngPath}`);
     log(`updated golden .m0: ${goldenM0Path}`);
-    cleanup(tmpDir);
     return;
   }
 
   // -------------------------------------------------------------------
-  // Verify mode — PNG
-  // -------------------------------------------------------------------
-  if (!fs.existsSync(goldenPngPath)) {
-    fs.mkdirSync(path.dirname(goldenPngPath), { recursive: true });
-    fs.copyFileSync(outputPath, goldenPngPath);
-    // Also create the .m0 alongside
-    fs.writeFileSync(goldenM0Path, m0Content, "utf8");
-    cleanup(tmpDir);
-    throw new Error(
-      `Golden created at ${goldenPngPath}.\n` +
-        `Sibling .m0 created at ${goldenM0Path}.\n` +
-        `Please inspect and re-run tests.`
-    );
-  }
-
-  const actualPngBytes = fs.readFileSync(outputPath);
-  const expectedPngBytes = fs.readFileSync(goldenPngPath);
-
-  if (!actualPngBytes.equals(expectedPngBytes)) {
-    // Mismatch — save actual next to golden for easy visual diff
-    const actualDebugPath = path.join(goldensDir, `${id}.__actual__.png`);
-    fs.copyFileSync(outputPath, actualDebugPath);
-    cleanup(tmpDir);
-    throw new Error(
-      `Wireframe golden mismatch for "${id}".\n` +
-        `  Expected: ${goldenPngPath}\n` +
-        `  Actual:   ${actualDebugPath}\n` +
-        `Compare visually and run with M0SAIC_UPDATE_GOLDENS=1 to update.`
-    );
-  }
-
-  log(`PNG match ✓ ${id}`);
-
-  // -------------------------------------------------------------------
-  // Verify mode — .m0 sibling
+  // Verify mode — the .m0 is the byte-correctness gate (cross-platform)
   // -------------------------------------------------------------------
   if (!fs.existsSync(goldenM0Path)) {
+    fs.mkdirSync(path.dirname(goldenM0Path), { recursive: true });
     fs.writeFileSync(goldenM0Path, m0Content, "utf8");
-    cleanup(tmpDir);
     throw new Error(
       `Sibling .m0 golden was missing — created at ${goldenM0Path}.\n` +
-        `Please inspect and re-run tests.`
+        `Please inspect and re-run tests.`,
     );
   }
-
-  const actualM0 = m0Content;
   const expectedM0 = fs.readFileSync(goldenM0Path, "utf8");
-
-  if (actualM0 !== expectedM0) {
+  if (m0Content !== expectedM0) {
     const actualM0DebugPath = path.join(goldensDir, `${id}.__actual__.m0`);
-    fs.writeFileSync(actualM0DebugPath, actualM0, "utf8");
-    cleanup(tmpDir);
+    fs.writeFileSync(actualM0DebugPath, m0Content, "utf8");
     throw new Error(
       `.m0 golden mismatch for "${id}".\n` +
         `  Expected: ${goldenM0Path}\n` +
         `  Actual:   ${actualM0DebugPath}\n` +
-        `Diff the files and run with M0SAIC_UPDATE_GOLDENS=1 to update.`
+        `Diff the files and run with M0SAIC_UPDATE_GOLDENS=1 to update.`,
     );
   }
-
   log(`.m0 match ✓ ${id}`);
-  cleanup(tmpDir);
-}
 
-function cleanup(tmpDir: string): void {
-  try {
-    fs.rmSync(tmpDir, { recursive: true, force: true });
-  } catch {
-    /* ignore */
+  // The single-copy wireframe reference must be committed next to the .m0.
+  if (!fs.existsSync(goldenPngPath)) {
+    throw new Error(
+      `Missing wireframe reference: ${goldenPngPath}\n` +
+        `Re-mint with M0SAIC_UPDATE_GOLDENS=1, review the image, and commit.`,
+    );
   }
+  // The layout signature must be committed too (the color-map e2e gate).
+  if (!fs.existsSync(path.join(goldensDir, `${id}.match`))) {
+    throw new Error(
+      `Missing layout signature: ${path.join(goldensDir, `${id}.match`)}\n` +
+        `Re-mint with M0SAIC_UPDATE_GOLDENS=1.`,
+    );
+  }
+  log(`PNG + .match reference present ✓ ${id}`);
 }

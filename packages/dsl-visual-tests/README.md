@@ -39,15 +39,15 @@ Each test:
 
 Verify mode (default):
 
-npm test -- --testPathPattern dsl-visual-tests
+npm test -- --testPathPatterns dsl-visual-tests
 
 Update goldens:
 
-M0SAIC_UPDATE_GOLDENS=1 npm test -- --testPathPattern dsl-visual-tests
+M0SAIC_UPDATE_GOLDENS=1 npm test -- --testPathPatterns dsl-visual-tests
 
 Verbose output:
 
-M0SAIC_GOLDEN_VERBOSE=1 npm test -- --testPathPattern dsl-visual-tests
+M0SAIC_GOLDEN_VERBOSE=1 npm test -- --testPathPatterns dsl-visual-tests
 
 ### Philosophy
 

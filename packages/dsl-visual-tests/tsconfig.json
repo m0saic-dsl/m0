@@ -11,5 +11,6 @@
     "types": ["jest", "node"],
     "ignoreDeprecations": "6.0"
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["dist", "node_modules", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/__tests__/**"]
 }
