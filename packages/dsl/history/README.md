@@ -124,7 +124,8 @@ There's a personal thread running through all of it. I've loved engineering sinc
 I was a kid, and this little geometry idea turned into one of the most genuinely
 interesting problem spaces I've ever worked in. I want to take it as far as it can
 go — in the open. If you're a developer reading this: I'd love your eyes, your
-ideas, and your arguments.
+ideas, and your arguments. The whole point is to build an **ecosystem** around
+this, not a walled garden.
 
 > **The mantra:** one small geometry idea, a single math-based blob that becomes a
 > layout — taken as far as it can possibly go, in the open, with whoever wants to

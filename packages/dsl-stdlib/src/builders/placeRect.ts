@@ -36,9 +36,21 @@ export type PlaceRectOptions = {
   rectW: number;
   /** Inner rect height in pixels. Positive integer, must be <= rootH. */
   rectH: number;
-  /** Horizontal alignment. Default: `"center"`. */
+  /**
+   * Top-left x in pixels. Non-negative integer; `x + rectW` must be
+   * ≤ `rootW`. When provided, `hAlign` is ignored. When absent,
+   * the rect is positioned via {@link hAlign}.
+   */
+  x?: number;
+  /**
+   * Top-left y in pixels. Non-negative integer; `y + rectH` must be
+   * ≤ `rootH`. When provided, `vAlign` is ignored. When absent,
+   * the rect is positioned via {@link vAlign}.
+   */
+  y?: number;
+  /** Horizontal alignment. Default: `"center"`. Ignored when `x` is set. */
   hAlign?: PlaceRectHAlign;
-  /** Vertical alignment. Default: `"center"`. */
+  /** Vertical alignment. Default: `"center"`. Ignored when `y` is set. */
   vAlign?: PlaceRectVAlign;
 };
 
@@ -62,16 +74,30 @@ export type PlaceRectResult = {
  * Emits a m0 string with exactly 1 rendered frame (`1`) and
  * `-` null tiles filling the remaining space.
  *
+ * Positioning has two modes (mix-and-match across axes):
+ *  - **Alignment** (default): pass `hAlign` / `vAlign` to letterbox /
+ *    pillarbox / corner-pin the rect.
+ *  - **Exact**: pass `x` / `y` for a specific top-left in pixels.
+ *    When set, the corresponding alignment prop is ignored.
+ *
  * @example
  * // Center a 1740x975 region inside 1920x1080
  * placeRect({ rootW: 1920, rootH: 1080, rectW: 1740, rectH: 975 })
+ *
+ * @example
+ * // Place a 400x500 region at (300, 200) inside 1000x1000
+ * placeRect({ rootW: 1000, rootH: 1000, rectW: 400, rectH: 500, x: 300, y: 200 })
+ *
+ * @example
+ * // Mixed: exact x, vertically centered
+ * placeRect({ rootW: 1920, rootH: 1080, rectW: 600, rectH: 400, x: 50 })
  *
  * @example
  * // Exact fit → bare "1"
  * placeRect({ rootW: 1920, rootH: 1080, rectW: 1920, rectH: 1080 })
  */
 export function placeRect(opts: PlaceRectOptions): PlaceRectResult {
-  const { rootW, rootH, rectW, rectH, hAlign = "center", vAlign = "center" } = opts;
+  const { rootW, rootH, rectW, rectH, x, y, hAlign = "center", vAlign = "center" } = opts;
 
   // ── Input validation ──
   if (!Number.isInteger(rootW) || rootW < 1)
@@ -86,44 +112,69 @@ export function placeRect(opts: PlaceRectOptions): PlaceRectResult {
     throw new Error(`placeRect: rectW (${rectW}) must be <= rootW (${rootW})`);
   if (rectH > rootH)
     throw new Error(`placeRect: rectH (${rectH}) must be <= rootH (${rootH})`);
+  if (x !== undefined) {
+    if (!Number.isInteger(x) || x < 0)
+      throw new Error(`placeRect: x must be a non-negative integer, got ${x}`);
+    if (x + rectW > rootW)
+      throw new Error(`placeRect: x (${x}) + rectW (${rectW}) must be <= rootW (${rootW})`);
+  }
+  if (y !== undefined) {
+    if (!Number.isInteger(y) || y < 0)
+      throw new Error(`placeRect: y must be a non-negative integer, got ${y}`);
+    if (y + rectH > rootH)
+      throw new Error(`placeRect: y (${y}) + rectH (${rectH}) must be <= rootH (${rootH})`);
+  }
 
   // ── Compute bars ──
+  // When x/y is set, derive bars directly from the requested top-left.
+  // When absent, fall back to the alignment-based bar split (default
+  // behavior — keeps every existing caller working).
   const hGap = rootW - rectW;
   let leftBar: number;
   let rightBar: number;
-  switch (hAlign) {
-    case "left":
-      leftBar = 0;
-      rightBar = hGap;
-      break;
-    case "right":
-      leftBar = hGap;
-      rightBar = 0;
-      break;
-    case "center":
-    default:
-      leftBar = Math.floor(hGap / 2);
-      rightBar = hGap - leftBar;
-      break;
+  if (x !== undefined) {
+    leftBar = x;
+    rightBar = hGap - x;
+  } else {
+    switch (hAlign) {
+      case "left":
+        leftBar = 0;
+        rightBar = hGap;
+        break;
+      case "right":
+        leftBar = hGap;
+        rightBar = 0;
+        break;
+      case "center":
+      default:
+        leftBar = Math.floor(hGap / 2);
+        rightBar = hGap - leftBar;
+        break;
+    }
   }
 
   const vGap = rootH - rectH;
   let topBar: number;
   let bottomBar: number;
-  switch (vAlign) {
-    case "top":
-      topBar = 0;
-      bottomBar = vGap;
-      break;
-    case "bottom":
-      topBar = vGap;
-      bottomBar = 0;
-      break;
-    case "center":
-    default:
-      topBar = Math.floor(vGap / 2);
-      bottomBar = vGap - topBar;
-      break;
+  if (y !== undefined) {
+    topBar = y;
+    bottomBar = vGap - y;
+  } else {
+    switch (vAlign) {
+      case "top":
+        topBar = 0;
+        bottomBar = vGap;
+        break;
+      case "bottom":
+        topBar = vGap;
+        bottomBar = 0;
+        break;
+      case "center":
+      default:
+        topBar = Math.floor(vGap / 2);
+        bottomBar = vGap - topBar;
+        break;
+    }
   }
 
   // ── Build DSL ──

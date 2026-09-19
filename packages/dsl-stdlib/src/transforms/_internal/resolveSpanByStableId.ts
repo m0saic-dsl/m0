@@ -1,4 +1,5 @@
-import { toCanonicalM0String, parseM0StringToFullGraph } from "@m0saic/dsl";
+import { toCanonicalM0String } from "@m0saic/dsl";
+import { findFirstFrame } from "../../queries/findFrames";
 import { SAFE_PARSE_CANVAS } from "./constants";
 
 /**
@@ -16,19 +17,10 @@ export function resolveSpanByStableId(
 ): { canonical: string; span: { start: number; end: number } } {
   const canonical = toCanonicalM0String(m0);
 
-  const frames = parseM0StringToFullGraph(
+  const target = findFirstFrame(
     canonical,
-    SAFE_PARSE_CANVAS,
-    SAFE_PARSE_CANVAS,
-  );
-  if (frames.length === 0) {
-    throw new Error(
-      `${opName}: failed to parse m0 string`,
-    );
-  }
-
-  const target = frames.find(
-    (f) => String(f.meta.stableKey) === stableKey,
+    (_, ctx) => String(ctx.stableKey) === stableKey,
+    { width: SAFE_PARSE_CANVAS, height: SAFE_PARSE_CANVAS },
   );
   if (!target) {
     throw new Error(

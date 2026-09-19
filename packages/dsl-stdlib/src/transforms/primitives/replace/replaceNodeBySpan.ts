@@ -2,6 +2,17 @@ import { validateInputOrThrow, assertValidSpan, finalizeM0Output, type OpOutputO
 import { toCanonicalM0String } from "@m0saic/dsl";
 import { findMatchingClose } from "../../_internal/lexUtils";
 
+export type ReplaceNodeOptions = OpOutputOptions & {
+  /**
+   * What to do with an immediately attached overlay block (`{...}`):
+   * `"preserve"` (default) reattaches it to the replacement fragment;
+   * `"drop"` consumes it — the replacement stands alone. Use `"drop"`
+   * when the overlay travels with an extracted subtree
+   * (`extractNodeByStableId`) rather than staying at the site.
+   */
+  overlay?: "preserve" | "drop";
+};
+
 /**
  * Replace the node body at the given span with a new m0 fragment,
  * preserving any immediately attached overlay block (`{...}`).
@@ -10,12 +21,12 @@ import { findMatchingClose } from "../../_internal/lexUtils";
  * only the **node body** (the split/primitive), not the overlay. If the
  * character immediately after `span.end` is `{`, the overlay block is
  * detached, the body is replaced, and the overlay is reattached to the
- * replacement.
+ * replacement (or dropped with `opts.overlay: "drop"`).
  *
  * @param m0          The m0 string
  * @param span        Exact source span (UTF-16 offsets in the canonical string)
  * @param replacement The replacement m0 fragment
- * @param opts        Optional output format preference
+ * @param opts        Overlay handling + output format preference
  *
  * @example
  * // Leaf without overlay
@@ -31,7 +42,7 @@ export function replaceNodeBySpan(
   m0: string,
   span: { start: number; end: number },
   replacement: string,
-  opts?: OpOutputOptions,
+  opts?: ReplaceNodeOptions,
 ): string {
   const canonical = validateInputOrThrow("replaceNodeBySpan", m0);
   const canonReplacement = toCanonicalM0String(replacement);
@@ -46,7 +57,8 @@ export function replaceNodeBySpan(
     overlayEnd = span.end + 1 + relativeClose + 1;
   }
 
-  const overlayBlock = canonical.substring(span.end, overlayEnd);
+  const overlayBlock =
+    opts?.overlay === "drop" ? "" : canonical.substring(span.end, overlayEnd);
 
   const result =
     canonical.substring(0, span.start) +

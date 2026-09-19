@@ -118,6 +118,99 @@ describe("placeRect — grid-safe canvas", () => {
 });
 
 // ---------------------------------------------------------------------------
+// Exact x / y positioning (overrides alignment)
+// ---------------------------------------------------------------------------
+
+describe("placeRect — exact x/y", () => {
+  test("400x500 at (300, 200) in 1000x1000", () => {
+    assertPlaceRect(
+      { rootW: 1000, rootH: 1000, rectW: 400, rectH: 500, x: 300, y: 200 },
+      400, 500, 300, 200,
+    );
+  });
+
+  test("x=0 / y=0 lands at top-left", () => {
+    assertPlaceRect(
+      { rootW: 1000, rootH: 1000, rectW: 200, rectH: 200, x: 0, y: 0 },
+      200, 200, 0, 0,
+    );
+  });
+
+  test("x flush right / y flush bottom", () => {
+    assertPlaceRect(
+      { rootW: 1000, rootH: 1000, rectW: 200, rectH: 200, x: 800, y: 800 },
+      200, 200, 800, 800,
+    );
+  });
+
+  test("mixed: exact x with default vAlign (center)", () => {
+    // x=50 forces left bar = 50; vAlign defaults to center → topBar = 340
+    assertPlaceRect(
+      { rootW: 1920, rootH: 1080, rectW: 600, rectH: 400, x: 50 },
+      600, 400, 50, 340,
+    );
+  });
+
+  test("mixed: exact y with explicit hAlign (right)", () => {
+    assertPlaceRect(
+      { rootW: 1920, rootH: 1080, rectW: 600, rectH: 400, y: 100, hAlign: "right" },
+      600, 400, 1320, 100,
+    );
+  });
+
+  test("x overrides hAlign when both provided", () => {
+    // x=200 wins; the hAlign:"right" hint is ignored
+    assertPlaceRect(
+      { rootW: 1000, rootH: 1000, rectW: 300, rectH: 300, x: 200, hAlign: "right" },
+      300, 300, 200, undefined,
+    );
+  });
+
+  test("x=0,y=0 with full-canvas rect produces bare 1", () => {
+    const r = placeRect({ rootW: 1920, rootH: 1080, rectW: 1920, rectH: 1080, x: 0, y: 0 });
+    expect(r.m0).toBe("1");
+    expect(r.totalWeight).toBe(0);
+  });
+
+  test("matches alignment-path output when x/y compute the same bars", () => {
+    // hAlign=center, vAlign=center for 1740x975 in 1920x1080:
+    //   leftBar = floor(180/2) = 90, topBar = floor(105/2) = 52
+    // Same x=90, y=52 via exact mode → must produce IDENTICAL m0.
+    const viaAlign = placeRect({
+      rootW: 1920, rootH: 1080, rectW: 1740, rectH: 975,
+    });
+    const viaXY = placeRect({
+      rootW: 1920, rootH: 1080, rectW: 1740, rectH: 975, x: 90, y: 52,
+    });
+    expect(viaXY.m0).toBe(viaAlign.m0);
+  });
+
+  test("x negative throws", () => {
+    expect(() =>
+      placeRect({ rootW: 1000, rootH: 1000, rectW: 200, rectH: 200, x: -1 }),
+    ).toThrow(/x must be a non-negative integer/);
+  });
+
+  test("x + rectW > rootW throws", () => {
+    expect(() =>
+      placeRect({ rootW: 1000, rootH: 1000, rectW: 200, rectH: 200, x: 900 }),
+    ).toThrow(/x \(900\) \+ rectW \(200\) must be <= rootW/);
+  });
+
+  test("y + rectH > rootH throws", () => {
+    expect(() =>
+      placeRect({ rootW: 1000, rootH: 1000, rectW: 200, rectH: 200, y: 900 }),
+    ).toThrow(/y \(900\) \+ rectH \(200\) must be <= rootH/);
+  });
+
+  test("non-integer x throws", () => {
+    expect(() =>
+      placeRect({ rootW: 1000, rootH: 1000, rectW: 200, rectH: 200, x: 100.5 }),
+    ).toThrow(/x must be a non-negative integer/);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Edge cases
 // ---------------------------------------------------------------------------
 

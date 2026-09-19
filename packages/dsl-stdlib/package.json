@@ -1,6 +1,6 @@
 {
   "name": "@m0saic/dsl-stdlib",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Standard library of builders, transforms, and utilities for the m0 DSL",
   "keywords": [
     "m0saic",
@@ -21,7 +21,7 @@
     "url": "git+https://github.com/m0saic-dsl/m0.git",
     "directory": "packages/dsl-stdlib"
   },
-  "homepage": "https://github.com/m0saic-dsl/m0",
+  "homepage": "https://github.com/m0saic-dsl/m0/tree/main/packages/dsl-stdlib#readme",
   "bugs": {
     "url": "https://github.com/m0saic-dsl/m0/issues"
   },
@@ -54,6 +54,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@m0saic/dsl": "^1.0.0"
+    "@m0saic/dsl": "^2.0.0",
+    "@m0saic/dsl-file-formats": "^2.0.0"
   }
 }

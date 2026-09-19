@@ -164,4 +164,35 @@ describe("replaceNodeBySpan", () => {
       replaceNodeBySpan("2(1,1)", { start: 0, end: 6 }, "(("),
     ).toThrow();
   });
+
+  // ── Overlay drop ──
+
+  test("overlay drop — leaf overlay consumed by replacement", () => {
+    // "1{1}" → body at [0,1); default preserves, drop consumes
+    expect(
+      replaceNodeBySpan("2(1{1},1)", { start: 2, end: 3 }, "-", { overlay: "drop" }),
+    ).toBe("2(-,1)");
+  });
+
+  test("overlay drop — group overlay consumed by replacement", () => {
+    // "2(1,1){1}" inside "2(2(1,1){1},1)" — inner group span [2,8)
+    expect(
+      replaceNodeBySpan("2(2(1,1){1},1)", { start: 2, end: 8 }, "1", { overlay: "drop" }),
+    ).toBe("2(1,1)");
+  });
+
+  test("overlay preserve is the default (explicit option matches)", () => {
+    expect(
+      replaceNodeBySpan("2(1{1},1)", { start: 2, end: 3 }, "-", { overlay: "preserve" }),
+    ).toBe("2(-{1},1)");
+    expect(replaceNodeBySpan("2(1{1},1)", { start: 2, end: 3 }, "-")).toBe(
+      "2(-{1},1)",
+    );
+  });
+
+  test("overlay drop is a no-op when the node has no overlay", () => {
+    expect(
+      replaceNodeBySpan("2(1,1)", { start: 2, end: 3 }, "-", { overlay: "drop" }),
+    ).toBe("2(-,1)");
+  });
 });

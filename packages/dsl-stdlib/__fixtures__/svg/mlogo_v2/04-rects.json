@@ -1,0 +1,798 @@
+{
+  "example": "m-logo",
+  "source": "03-grid.json",
+  "rects": [
+    {
+      "shapeId": "shape-0000",
+      "sourceIndex": 0,
+      "canonicalIndex": 0,
+      "file": "04-rects\\rect-0000.m0",
+      "gridSpan": {
+        "xStart": 0,
+        "xEnd": 1,
+        "yStart": 0,
+        "yEnd": 2
+      },
+      "snappedBounds": {
+        "x": 0,
+        "y": 0,
+        "width": 20,
+        "height": 48,
+        "left": 0,
+        "top": 0,
+        "right": 20,
+        "bottom": 48
+      },
+      "id": "shape-0000",
+      "index": 0
+    },
+    {
+      "shapeId": "shape-0018",
+      "sourceIndex": 18,
+      "canonicalIndex": 1,
+      "file": "04-rects\\rect-0001.m0",
+      "gridSpan": {
+        "xStart": 2,
+        "xEnd": 5,
+        "yStart": 0,
+        "yEnd": 2
+      },
+      "snappedBounds": {
+        "x": 27,
+        "y": 0,
+        "width": 35,
+        "height": 48,
+        "left": 27,
+        "top": 0,
+        "right": 62,
+        "bottom": 48
+      },
+      "id": "shape-0018",
+      "index": 1
+    },
+    {
+      "shapeId": "shape-0026",
+      "sourceIndex": 26,
+      "canonicalIndex": 2,
+      "file": "04-rects\\rect-0002.m0",
+      "gridSpan": {
+        "xStart": 19,
+        "xEnd": 22,
+        "yStart": 0,
+        "yEnd": 2
+      },
+      "snappedBounds": {
+        "x": 210,
+        "y": 0,
+        "width": 35,
+        "height": 48,
+        "left": 210,
+        "top": 0,
+        "right": 245,
+        "bottom": 48
+      },
+      "id": "shape-0026",
+      "index": 2
+    },
+    {
+      "shapeId": "shape-0027",
+      "sourceIndex": 27,
+      "canonicalIndex": 3,
+      "file": "04-rects\\rect-0003.m0",
+      "gridSpan": {
+        "xStart": 23,
+        "xEnd": 24,
+        "yStart": 0,
+        "yEnd": 2
+      },
+      "snappedBounds": {
+        "x": 252,
+        "y": 0,
+        "width": 20,
+        "height": 48,
+        "left": 252,
+        "top": 0,
+        "right": 272,
+        "bottom": 48
+      },
+      "id": "shape-0027",
+      "index": 3
+    },
+    {
+      "shapeId": "shape-0010",
+      "sourceIndex": 10,
+      "canonicalIndex": 4,
+      "file": "04-rects\\rect-0004.m0",
+      "gridSpan": {
+        "xStart": 6,
+        "xEnd": 8,
+        "yStart": 1,
+        "yEnd": 2
+      },
+      "snappedBounds": {
+        "x": 70,
+        "y": 3,
+        "width": 32,
+        "height": 45,
+        "left": 70,
+        "top": 3,
+        "right": 102,
+        "bottom": 48
+      },
+      "id": "shape-0010",
+      "index": 4
+    },
+    {
+      "shapeId": "shape-0011",
+      "sourceIndex": 11,
+      "canonicalIndex": 5,
+      "file": "04-rects\\rect-0005.m0",
+      "gridSpan": {
+        "xStart": 14,
+        "xEnd": 18,
+        "yStart": 1,
+        "yEnd": 2
+      },
+      "snappedBounds": {
+        "x": 170,
+        "y": 3,
+        "width": 32,
+        "height": 45,
+        "left": 170,
+        "top": 3,
+        "right": 202,
+        "bottom": 48
+      },
+      "id": "shape-0011",
+      "index": 5
+    },
+    {
+      "shapeId": "shape-0001",
+      "sourceIndex": 1,
+      "canonicalIndex": 6,
+      "file": "04-rects\\rect-0006.m0",
+      "gridSpan": {
+        "xStart": 0,
+        "xEnd": 3,
+        "yStart": 3,
+        "yEnd": 8
+      },
+      "snappedBounds": {
+        "x": 0,
+        "y": 56,
+        "width": 35,
+        "height": 48,
+        "left": 0,
+        "top": 56,
+        "right": 35,
+        "bottom": 104
+      },
+      "id": "shape-0001",
+      "index": 6
+    },
+    {
+      "shapeId": "shape-0015",
+      "sourceIndex": 15,
+      "canonicalIndex": 7,
+      "file": "04-rects\\rect-0007.m0",
+      "gridSpan": {
+        "xStart": 4,
+        "xEnd": 5,
+        "yStart": 3,
+        "yEnd": 4
+      },
+      "snappedBounds": {
+        "x": 43,
+        "y": 56,
+        "width": 19,
+        "height": 20,
+        "left": 43,
+        "top": 56,
+        "right": 62,
+        "bottom": 76
+      },
+      "id": "shape-0015",
+      "index": 7
+    },
+    {
+      "shapeId": "shape-0009",
+      "sourceIndex": 9,
+      "canonicalIndex": 8,
+      "file": "04-rects\\rect-0008.m0",
+      "gridSpan": {
+        "xStart": 6,
+        "xEnd": 11,
+        "yStart": 3,
+        "yEnd": 8
+      },
+      "snappedBounds": {
+        "x": 70,
+        "y": 56,
+        "width": 62,
+        "height": 48,
+        "left": 70,
+        "top": 56,
+        "right": 132,
+        "bottom": 104
+      },
+      "id": "shape-0009",
+      "index": 8
+    },
+    {
+      "shapeId": "shape-0008",
+      "sourceIndex": 8,
+      "canonicalIndex": 9,
+      "file": "04-rects\\rect-0009.m0",
+      "gridSpan": {
+        "xStart": 12,
+        "xEnd": 15,
+        "yStart": 3,
+        "yEnd": 8
+      },
+      "snappedBounds": {
+        "x": 139,
+        "y": 56,
+        "width": 36,
+        "height": 48,
+        "left": 139,
+        "top": 56,
+        "right": 175,
+        "bottom": 104
+      },
+      "id": "shape-0008",
+      "index": 9
+    },
+    {
+      "shapeId": "shape-0017",
+      "sourceIndex": 17,
+      "canonicalIndex": 10,
+      "file": "04-rects\\rect-0010.m0",
+      "gridSpan": {
+        "xStart": 16,
+        "xEnd": 18,
+        "yStart": 3,
+        "yEnd": 8
+      },
+      "snappedBounds": {
+        "x": 182,
+        "y": 56,
+        "width": 20,
+        "height": 48,
+        "left": 182,
+        "top": 56,
+        "right": 202,
+        "bottom": 104
+      },
+      "id": "shape-0017",
+      "index": 10
+    },
+    {
+      "shapeId": "shape-0032",
+      "sourceIndex": 32,
+      "canonicalIndex": 11,
+      "file": "04-rects\\rect-0011.m0",
+      "gridSpan": {
+        "xStart": 19,
+        "xEnd": 20,
+        "yStart": 3,
+        "yEnd": 5
+      },
+      "snappedBounds": {
+        "x": 210,
+        "y": 56,
+        "width": 19,
+        "height": 20,
+        "left": 210,
+        "top": 56,
+        "right": 229,
+        "bottom": 76
+      },
+      "id": "shape-0032",
+      "index": 11
+    },
+    {
+      "shapeId": "shape-0025",
+      "sourceIndex": 25,
+      "canonicalIndex": 12,
+      "file": "04-rects\\rect-0012.m0",
+      "gridSpan": {
+        "xStart": 21,
+        "xEnd": 24,
+        "yStart": 3,
+        "yEnd": 8
+      },
+      "snappedBounds": {
+        "x": 237,
+        "y": 56,
+        "width": 35,
+        "height": 48,
+        "left": 237,
+        "top": 56,
+        "right": 272,
+        "bottom": 104
+      },
+      "id": "shape-0025",
+      "index": 12
+    },
+    {
+      "shapeId": "shape-0016",
+      "sourceIndex": 16,
+      "canonicalIndex": 13,
+      "file": "04-rects\\rect-0013.m0",
+      "gridSpan": {
+        "xStart": 4,
+        "xEnd": 5,
+        "yStart": 6,
+        "yEnd": 8
+      },
+      "snappedBounds": {
+        "x": 43,
+        "y": 84,
+        "width": 19,
+        "height": 20,
+        "left": 43,
+        "top": 84,
+        "right": 62,
+        "bottom": 104
+      },
+      "id": "shape-0016",
+      "index": 13
+    },
+    {
+      "shapeId": "shape-0031",
+      "sourceIndex": 31,
+      "canonicalIndex": 14,
+      "file": "04-rects\\rect-0014.m0",
+      "gridSpan": {
+        "xStart": 19,
+        "xEnd": 20,
+        "yStart": 7,
+        "yEnd": 8
+      },
+      "snappedBounds": {
+        "x": 210,
+        "y": 84,
+        "width": 19,
+        "height": 20,
+        "left": 210,
+        "top": 84,
+        "right": 229,
+        "bottom": 104
+      },
+      "id": "shape-0031",
+      "index": 14
+    },
+    {
+      "shapeId": "shape-0003",
+      "sourceIndex": 3,
+      "canonicalIndex": 15,
+      "file": "04-rects\\rect-0015.m0",
+      "gridSpan": {
+        "xStart": 0,
+        "xEnd": 2,
+        "yStart": 9,
+        "yEnd": 11
+      },
+      "snappedBounds": {
+        "x": 0,
+        "y": 112,
+        "width": 27,
+        "height": 48,
+        "left": 0,
+        "top": 112,
+        "right": 27,
+        "bottom": 160
+      },
+      "id": "shape-0003",
+      "index": 15
+    },
+    {
+      "shapeId": "shape-0002",
+      "sourceIndex": 2,
+      "canonicalIndex": 16,
+      "file": "04-rects\\rect-0016.m0",
+      "gridSpan": {
+        "xStart": 3,
+        "xEnd": 5,
+        "yStart": 9,
+        "yEnd": 11
+      },
+      "snappedBounds": {
+        "x": 35,
+        "y": 112,
+        "width": 27,
+        "height": 48,
+        "left": 35,
+        "top": 112,
+        "right": 62,
+        "bottom": 160
+      },
+      "id": "shape-0002",
+      "index": 16
+    },
+    {
+      "shapeId": "shape-0013",
+      "sourceIndex": 13,
+      "canonicalIndex": 17,
+      "file": "04-rects\\rect-0017.m0",
+      "gridSpan": {
+        "xStart": 6,
+        "xEnd": 7,
+        "yStart": 9,
+        "yEnd": 10
+      },
+      "snappedBounds": {
+        "x": 70,
+        "y": 112,
+        "width": 26,
+        "height": 36,
+        "left": 70,
+        "top": 112,
+        "right": 96,
+        "bottom": 148
+      },
+      "id": "shape-0013",
+      "index": 17
+    },
+    {
+      "shapeId": "shape-0007",
+      "sourceIndex": 7,
+      "canonicalIndex": 18,
+      "file": "04-rects\\rect-0018.m0",
+      "gridSpan": {
+        "xStart": 9,
+        "xEnd": 11,
+        "yStart": 9,
+        "yEnd": 11
+      },
+      "snappedBounds": {
+        "x": 103,
+        "y": 112,
+        "width": 29,
+        "height": 48,
+        "left": 103,
+        "top": 112,
+        "right": 132,
+        "bottom": 160
+      },
+      "id": "shape-0007",
+      "index": 18
+    },
+    {
+      "shapeId": "shape-0012",
+      "sourceIndex": 12,
+      "canonicalIndex": 19,
+      "file": "04-rects\\rect-0019.m0",
+      "gridSpan": {
+        "xStart": 12,
+        "xEnd": 17,
+        "yStart": 9,
+        "yEnd": 11
+      },
+      "snappedBounds": {
+        "x": 139,
+        "y": 112,
+        "width": 62,
+        "height": 48,
+        "left": 139,
+        "top": 112,
+        "right": 201,
+        "bottom": 160
+      },
+      "id": "shape-0012",
+      "index": 19
+    },
+    {
+      "shapeId": "shape-0023",
+      "sourceIndex": 23,
+      "canonicalIndex": 20,
+      "file": "04-rects\\rect-0020.m0",
+      "gridSpan": {
+        "xStart": 19,
+        "xEnd": 21,
+        "yStart": 9,
+        "yEnd": 11
+      },
+      "snappedBounds": {
+        "x": 210,
+        "y": 112,
+        "width": 27,
+        "height": 48,
+        "left": 210,
+        "top": 112,
+        "right": 237,
+        "bottom": 160
+      },
+      "id": "shape-0023",
+      "index": 20
+    },
+    {
+      "shapeId": "shape-0024",
+      "sourceIndex": 24,
+      "canonicalIndex": 21,
+      "file": "04-rects\\rect-0021.m0",
+      "gridSpan": {
+        "xStart": 22,
+        "xEnd": 24,
+        "yStart": 9,
+        "yEnd": 11
+      },
+      "snappedBounds": {
+        "x": 245,
+        "y": 112,
+        "width": 27,
+        "height": 48,
+        "left": 245,
+        "top": 112,
+        "right": 272,
+        "bottom": 160
+      },
+      "id": "shape-0024",
+      "index": 21
+    },
+    {
+      "shapeId": "shape-0004",
+      "sourceIndex": 4,
+      "canonicalIndex": 22,
+      "file": "04-rects\\rect-0022.m0",
+      "gridSpan": {
+        "xStart": 0,
+        "xEnd": 3,
+        "yStart": 12,
+        "yEnd": 18
+      },
+      "snappedBounds": {
+        "x": 0,
+        "y": 168,
+        "width": 35,
+        "height": 48,
+        "left": 0,
+        "top": 168,
+        "right": 35,
+        "bottom": 216
+      },
+      "id": "shape-0004",
+      "index": 22
+    },
+    {
+      "shapeId": "shape-0019",
+      "sourceIndex": 19,
+      "canonicalIndex": 23,
+      "file": "04-rects\\rect-0023.m0",
+      "gridSpan": {
+        "xStart": 4,
+        "xEnd": 5,
+        "yStart": 12,
+        "yEnd": 13
+      },
+      "snappedBounds": {
+        "x": 43,
+        "y": 168,
+        "width": 19,
+        "height": 20,
+        "left": 43,
+        "top": 168,
+        "right": 62,
+        "bottom": 188
+      },
+      "id": "shape-0019",
+      "index": 23
+    },
+    {
+      "shapeId": "shape-0014",
+      "sourceIndex": 14,
+      "canonicalIndex": 24,
+      "file": "04-rects\\rect-0024.m0",
+      "gridSpan": {
+        "xStart": 10,
+        "xEnd": 13,
+        "yStart": 12,
+        "yEnd": 17
+      },
+      "snappedBounds": {
+        "x": 110,
+        "y": 168,
+        "width": 50,
+        "height": 35,
+        "left": 110,
+        "top": 168,
+        "right": 160,
+        "bottom": 203
+      },
+      "id": "shape-0014",
+      "index": 24
+    },
+    {
+      "shapeId": "shape-0029",
+      "sourceIndex": 29,
+      "canonicalIndex": 25,
+      "file": "04-rects\\rect-0025.m0",
+      "gridSpan": {
+        "xStart": 19,
+        "xEnd": 20,
+        "yStart": 12,
+        "yEnd": 14
+      },
+      "snappedBounds": {
+        "x": 210,
+        "y": 168,
+        "width": 19,
+        "height": 20,
+        "left": 210,
+        "top": 168,
+        "right": 229,
+        "bottom": 188
+      },
+      "id": "shape-0029",
+      "index": 25
+    },
+    {
+      "shapeId": "shape-0022",
+      "sourceIndex": 22,
+      "canonicalIndex": 26,
+      "file": "04-rects\\rect-0026.m0",
+      "gridSpan": {
+        "xStart": 21,
+        "xEnd": 24,
+        "yStart": 12,
+        "yEnd": 18
+      },
+      "snappedBounds": {
+        "x": 237,
+        "y": 168,
+        "width": 35,
+        "height": 48,
+        "left": 237,
+        "top": 168,
+        "right": 272,
+        "bottom": 216
+      },
+      "id": "shape-0022",
+      "index": 26
+    },
+    {
+      "shapeId": "shape-0020",
+      "sourceIndex": 20,
+      "canonicalIndex": 27,
+      "file": "04-rects\\rect-0027.m0",
+      "gridSpan": {
+        "xStart": 4,
+        "xEnd": 5,
+        "yStart": 15,
+        "yEnd": 18
+      },
+      "snappedBounds": {
+        "x": 43,
+        "y": 195,
+        "width": 19,
+        "height": 21,
+        "left": 43,
+        "top": 195,
+        "right": 62,
+        "bottom": 216
+      },
+      "id": "shape-0020",
+      "index": 27
+    },
+    {
+      "shapeId": "shape-0028",
+      "sourceIndex": 28,
+      "canonicalIndex": 28,
+      "file": "04-rects\\rect-0028.m0",
+      "gridSpan": {
+        "xStart": 19,
+        "xEnd": 20,
+        "yStart": 16,
+        "yEnd": 18
+      },
+      "snappedBounds": {
+        "x": 210,
+        "y": 196,
+        "width": 19,
+        "height": 20,
+        "left": 210,
+        "top": 196,
+        "right": 229,
+        "bottom": 216
+      },
+      "id": "shape-0028",
+      "index": 28
+    },
+    {
+      "shapeId": "shape-0006",
+      "sourceIndex": 6,
+      "canonicalIndex": 29,
+      "file": "04-rects\\rect-0029.m0",
+      "gridSpan": {
+        "xStart": 0,
+        "xEnd": 1,
+        "yStart": 19,
+        "yEnd": 20
+      },
+      "snappedBounds": {
+        "x": 0,
+        "y": 224,
+        "width": 20,
+        "height": 48,
+        "left": 0,
+        "top": 224,
+        "right": 20,
+        "bottom": 272
+      },
+      "id": "shape-0006",
+      "index": 29
+    },
+    {
+      "shapeId": "shape-0005",
+      "sourceIndex": 5,
+      "canonicalIndex": 30,
+      "file": "04-rects\\rect-0030.m0",
+      "gridSpan": {
+        "xStart": 2,
+        "xEnd": 5,
+        "yStart": 19,
+        "yEnd": 20
+      },
+      "snappedBounds": {
+        "x": 27,
+        "y": 224,
+        "width": 35,
+        "height": 48,
+        "left": 27,
+        "top": 224,
+        "right": 62,
+        "bottom": 272
+      },
+      "id": "shape-0005",
+      "index": 30
+    },
+    {
+      "shapeId": "shape-0030",
+      "sourceIndex": 30,
+      "canonicalIndex": 31,
+      "file": "04-rects\\rect-0031.m0",
+      "gridSpan": {
+        "xStart": 19,
+        "xEnd": 22,
+        "yStart": 19,
+        "yEnd": 20
+      },
+      "snappedBounds": {
+        "x": 210,
+        "y": 224,
+        "width": 35,
+        "height": 48,
+        "left": 210,
+        "top": 224,
+        "right": 245,
+        "bottom": 272
+      },
+      "id": "shape-0030",
+      "index": 31
+    },
+    {
+      "shapeId": "shape-0021",
+      "sourceIndex": 21,
+      "canonicalIndex": 32,
+      "file": "04-rects\\rect-0032.m0",
+      "gridSpan": {
+        "xStart": 23,
+        "xEnd": 24,
+        "yStart": 19,
+        "yEnd": 20
+      },
+      "snappedBounds": {
+        "x": 252,
+        "y": 224,
+        "width": 20,
+        "height": 48,
+        "left": 252,
+        "top": 224,
+        "right": 272,
+        "bottom": 272
+      },
+      "id": "shape-0021",
+      "index": 32
+    }
+  ]
+}

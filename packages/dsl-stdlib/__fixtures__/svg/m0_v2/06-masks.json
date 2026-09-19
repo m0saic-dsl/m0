@@ -1,0 +1,385 @@
+{
+  "example": "m-logo",
+  "sourceGeometryFile": "02-geometry.json",
+  "sourceRectManifest": "04-rects.json",
+  "sourceComposedFile": "05-composed.m0",
+  "masks": [
+    {
+      "shapeId": "shape-0005",
+      "sourceIndex": 5,
+      "canonicalIndex": 0,
+      "ownerKind": "frame",
+      "stableKey": "f0",
+      "kind": "rect",
+      "bounds": {
+        "x": 68,
+        "y": 0,
+        "width": 20,
+        "height": 46
+      }
+    },
+    {
+      "shapeId": "shape-0006",
+      "sourceIndex": 6,
+      "canonicalIndex": 1,
+      "ownerKind": "frame",
+      "stableKey": "f1",
+      "kind": "rect",
+      "bounds": {
+        "x": 95,
+        "y": 0,
+        "width": 27,
+        "height": 46
+      }
+    },
+    {
+      "shapeId": "shape-0009",
+      "sourceIndex": 9,
+      "canonicalIndex": 2,
+      "ownerKind": "frame",
+      "stableKey": "r/ov1c0/ov2c0/gcolc22/fc59",
+      "kind": "masked",
+      "bounds": {
+        "x": 7,
+        "y": 2,
+        "width": 53,
+        "height": 44
+      },
+      "localPath": "M 54.3658 43.7029 V -0.3311 C 37.3792 3.1776 22.4313 12.1955 11.551 24.8427 C 6.7063 30.4726 2.7297 36.8364 -0.3184 43.7029 H 54.3658 Z"
+    },
+    {
+      "shapeId": "shape-0017",
+      "sourceIndex": 17,
+      "canonicalIndex": 3,
+      "ownerKind": "frame",
+      "stableKey": "r/ov1c0/ov2c0/ov3c0/gcolc22/fc184",
+      "kind": "masked",
+      "bounds": {
+        "x": 130,
+        "y": 2,
+        "width": 55,
+        "height": 44
+      },
+      "localPath": "M 0.624 43.6226 V -0.4114 C 17.611 3.0973 32.559 12.1152 43.439 24.7624 C 48.284 30.3923 52.26 36.7561 55.308 43.6226 H 0.624 Z"
+    },
+    {
+      "shapeId": "shape-0007",
+      "sourceIndex": 7,
+      "canonicalIndex": 4,
+      "ownerKind": "frame",
+      "stableKey": "r/ov1c0/ov2c0/ov3c0/ov4c0/gcolc77/fc16",
+      "kind": "masked",
+      "bounds": {
+        "x": 0,
+        "y": 53,
+        "width": 34,
+        "height": 25
+      },
+      "localPath": "M 0.0605 23.4664 V 24.8337 L 34.4779 24.8638 V 0.1927 L 3.8354 0.1626 C 1.4534 7.5217 0.0908 15.3332 0.0706 23.4664 H 0.0605 Z"
+    },
+    {
+      "shapeId": "shape-0008",
+      "sourceIndex": 8,
+      "canonicalIndex": 5,
+      "ownerKind": "frame",
+      "stableKey": "r/ov1c0/ov2c0/ov3c0/ov4c0/ov5c0/gcolc77/fc59",
+      "kind": "masked",
+      "bounds": {
+        "x": 41,
+        "y": 53,
+        "width": 19,
+        "height": 25
+      },
+      "localPath": "M 1.0174 0.2028 V 24.894 L 20.3557 24.8638 V 0.1626 L 1.0174 0.2028 Z"
+    },
+    {
+      "shapeId": "shape-0010",
+      "sourceIndex": 10,
+      "canonicalIndex": 6,
+      "ownerKind": "frame",
+      "stableKey": "f6",
+      "kind": "rect",
+      "bounds": {
+        "x": 68,
+        "y": 53,
+        "width": 54,
+        "height": 25
+      }
+    },
+    {
+      "shapeId": "shape-0016",
+      "sourceIndex": 16,
+      "canonicalIndex": 7,
+      "ownerKind": "frame",
+      "stableKey": "r/ov1c0/ov2c0/ov3c0/ov4c0/ov5c0/ov6c0/ov7c0/gcolc77/fc148",
+      "kind": "masked",
+      "bounds": {
+        "x": 130,
+        "y": 53,
+        "width": 19,
+        "height": 25
+      },
+      "localPath": "M 19.972 0.1222 V 24.8133 L 0.634 24.7832 V 0.092 L 19.972 0.1222 Z"
+    },
+    {
+      "shapeId": "shape-0015",
+      "sourceIndex": 15,
+      "canonicalIndex": 8,
+      "ownerKind": "frame",
+      "stableKey": "r/ov1c0/ov2c0/ov3c0/ov4c0/ov5c0/ov6c0/ov7c0/ov8c0/gcolc77/fc191",
+      "kind": "masked",
+      "bounds": {
+        "x": 157,
+        "y": 53,
+        "width": 35,
+        "height": 25
+      },
+      "localPath": "M 34.929 23.3958 V 24.7631 L 0.512 24.7933 V 0.1222 L 31.155 0.092 C 33.537 7.4511 34.899 15.2626 34.919 23.3958 H 34.929 Z"
+    },
+    {
+      "shapeId": "shape-0023",
+      "sourceIndex": 23,
+      "canonicalIndex": 9,
+      "ownerKind": "frame",
+      "stableKey": "f9",
+      "kind": "rect",
+      "bounds": {
+        "x": 0,
+        "y": 85,
+        "width": 27,
+        "height": 39
+      }
+    },
+    {
+      "shapeId": "shape-0024",
+      "sourceIndex": 24,
+      "canonicalIndex": 10,
+      "ownerKind": "frame",
+      "stableKey": "f10",
+      "kind": "rect",
+      "bounds": {
+        "x": 34,
+        "y": 85,
+        "width": 26,
+        "height": 39
+      }
+    },
+    {
+      "shapeId": "shape-0020",
+      "sourceIndex": 20,
+      "canonicalIndex": 11,
+      "ownerKind": "frame",
+      "stableKey": "f11",
+      "kind": "rect",
+      "bounds": {
+        "x": 130,
+        "y": 85,
+        "width": 27,
+        "height": 39
+      }
+    },
+    {
+      "shapeId": "shape-0018",
+      "sourceIndex": 18,
+      "canonicalIndex": 12,
+      "ownerKind": "frame",
+      "stableKey": "f12",
+      "kind": "rect",
+      "bounds": {
+        "x": 165,
+        "y": 85,
+        "width": 27,
+        "height": 39
+      }
+    },
+    {
+      "shapeId": "shape-0022",
+      "sourceIndex": 22,
+      "canonicalIndex": 13,
+      "ownerKind": "frame",
+      "stableKey": "f13",
+      "kind": "rect",
+      "bounds": {
+        "x": 0,
+        "y": 131,
+        "width": 34,
+        "height": 39
+      }
+    },
+    {
+      "shapeId": "shape-0025",
+      "sourceIndex": 25,
+      "canonicalIndex": 14,
+      "ownerKind": "frame",
+      "stableKey": "f14",
+      "kind": "rect",
+      "bounds": {
+        "x": 41,
+        "y": 131,
+        "width": 19,
+        "height": 39
+      }
+    },
+    {
+      "shapeId": "shape-0021",
+      "sourceIndex": 21,
+      "canonicalIndex": 15,
+      "ownerKind": "frame",
+      "stableKey": "r/ov1c0/ov2c0/ov3c0/ov4c0/ov5c0/ov6c0/ov7c0/ov8c0/ov9c0/ov10c0/ov11c0/ov12c0/ov13c0/ov14c0/ov15c0/gcolc169/fc148",
+      "kind": "masked",
+      "bounds": {
+        "x": 130,
+        "y": 131,
+        "width": 19,
+        "height": 39
+      },
+      "localPath": "M 0.564 0.69 V 39.536 L 19.973 39.566 V 0.72 L 0.564 0.69 Z"
+    },
+    {
+      "shapeId": "shape-0019",
+      "sourceIndex": 19,
+      "canonicalIndex": 16,
+      "ownerKind": "frame",
+      "stableKey": "f16",
+      "kind": "rect",
+      "bounds": {
+        "x": 157,
+        "y": 131,
+        "width": 35,
+        "height": 39
+      }
+    },
+    {
+      "shapeId": "shape-0000",
+      "sourceIndex": 0,
+      "canonicalIndex": 17,
+      "ownerKind": "frame",
+      "stableKey": "r/ov1c0/ov2c0/ov3c0/ov4c0/ov5c0/ov6c0/ov7c0/ov8c0/ov9c0/ov10c0/ov11c0/ov12c0/ov13c0/ov14c0/ov15c0/ov16c0/ov17c0/gcolc202/fc16",
+      "kind": "masked",
+      "bounds": {
+        "x": 0,
+        "y": 178,
+        "width": 34,
+        "height": 25
+      },
+      "localPath": "M 0 1.363 C 0.0101 9.557 1.4231 17.398 3.8152 24.798 L 34.4375 24.828 V 0.157 L 0.0101 0.126 V 1.363 H 0 Z"
+    },
+    {
+      "shapeId": "shape-0002",
+      "sourceIndex": 2,
+      "canonicalIndex": 18,
+      "ownerKind": "frame",
+      "stableKey": "r/ov1c0/ov2c0/ov3c0/ov4c0/ov5c0/ov6c0/ov7c0/ov8c0/ov9c0/ov10c0/ov11c0/ov12c0/ov13c0/ov14c0/ov15c0/ov16c0/ov17c0/ov18c0/gcolc202/fc59",
+      "kind": "masked",
+      "bounds": {
+        "x": 41,
+        "y": 178,
+        "width": 19,
+        "height": 25
+      },
+      "localPath": "M 20.2548 0.126 V 24.787 L 0.9165 24.828 V 0.167 L 20.2548 0.126 Z"
+    },
+    {
+      "shapeId": "shape-0011",
+      "sourceIndex": 11,
+      "canonicalIndex": 19,
+      "ownerKind": "frame",
+      "stableKey": "f19",
+      "kind": "rect",
+      "bounds": {
+        "x": 68,
+        "y": 178,
+        "width": 54,
+        "height": 25
+      }
+    },
+    {
+      "shapeId": "shape-0014",
+      "sourceIndex": 14,
+      "canonicalIndex": 20,
+      "ownerKind": "frame",
+      "stableKey": "r/ov1c0/ov2c0/ov3c0/ov4c0/ov5c0/ov6c0/ov7c0/ov8c0/ov9c0/ov10c0/ov11c0/ov12c0/ov13c0/ov14c0/ov15c0/ov16c0/ov17c0/ov18c0/ov19c0/ov20c0/gcolc202/fc148",
+      "kind": "masked",
+      "bounds": {
+        "x": 130,
+        "y": 178,
+        "width": 19,
+        "height": 25
+      },
+      "localPath": "M 0.735 0.046 V 24.717 L 20.084 24.747 V 0.086 L 0.735 0.046 Z"
+    },
+    {
+      "shapeId": "shape-0012",
+      "sourceIndex": 12,
+      "canonicalIndex": 21,
+      "ownerKind": "frame",
+      "stableKey": "r/ov1c0/ov2c0/ov3c0/ov4c0/ov5c0/ov6c0/ov7c0/ov8c0/ov9c0/ov10c0/ov11c0/ov12c0/ov13c0/ov14c0/ov15c0/ov16c0/ov17c0/ov18c0/ov19c0/ov20c0/ov21c0/gcolc202/fc191",
+      "kind": "masked",
+      "bounds": {
+        "x": 157,
+        "y": 178,
+        "width": 35,
+        "height": 25
+      },
+      "localPath": "M 35 1.282 C 34.99 9.476 33.577 17.318 31.185 24.717 L 0.562 24.747 V 0.076 L 34.99 0.046 V 1.282 H 35 Z"
+    },
+    {
+      "shapeId": "shape-0001",
+      "sourceIndex": 1,
+      "canonicalIndex": 22,
+      "ownerKind": "frame",
+      "stableKey": "r/ov1c0/ov2c0/ov3c0/ov4c0/ov5c0/ov6c0/ov7c0/ov8c0/ov9c0/ov10c0/ov11c0/ov12c0/ov13c0/ov14c0/ov15c0/ov16c0/ov17c0/ov18c0/ov19c0/ov20c0/ov21c0/ov22c0/gcolc126/fc59",
+      "kind": "masked",
+      "bounds": {
+        "x": 7,
+        "y": 210,
+        "width": 53,
+        "height": 44
+      },
+      "localPath": "M 34.6036 37.425 C 40.7301 40.592 47.3712 42.844 54.3153 44.281 V 0.277 H -0.4395 C 6.666 16.272 19.0805 29.402 34.6036 37.425 Z"
+    },
+    {
+      "shapeId": "shape-0004",
+      "sourceIndex": 4,
+      "canonicalIndex": 23,
+      "ownerKind": "frame",
+      "stableKey": "f23",
+      "kind": "rect",
+      "bounds": {
+        "x": 68,
+        "y": 210,
+        "width": 27,
+        "height": 46
+      }
+    },
+    {
+      "shapeId": "shape-0003",
+      "sourceIndex": 3,
+      "canonicalIndex": 24,
+      "ownerKind": "frame",
+      "stableKey": "f24",
+      "kind": "rect",
+      "bounds": {
+        "x": 102,
+        "y": 210,
+        "width": 20,
+        "height": 46
+      }
+    },
+    {
+      "shapeId": "shape-0013",
+      "sourceIndex": 13,
+      "canonicalIndex": 25,
+      "ownerKind": "frame",
+      "stableKey": "r/ov1c0/ov2c0/ov3c0/ov4c0/ov5c0/ov6c0/ov7c0/ov8c0/ov9c0/ov10c0/ov11c0/ov12c0/ov13c0/ov14c0/ov15c0/ov16c0/ov17c0/ov18c0/ov19c0/ov20c0/ov21c0/ov22c0/ov23c0/ov24c0/ov25c0/gcolc126/fc184",
+      "kind": "masked",
+      "bounds": {
+        "x": 130,
+        "y": 210,
+        "width": 55,
+        "height": 44
+      },
+      "localPath": "M 20.386 37.344 C 14.26 40.511 7.619 42.763 0.675 44.201 V 0.197 H 55.429 C 48.324 16.192 35.91 29.322 20.386 37.344 Z"
+    }
+  ]
+}

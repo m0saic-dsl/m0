@@ -64,6 +64,14 @@ describe("replaceNodeByStableId", () => {
     expect(replaceNodeByStableId(m0, key, "2(F,F)")).toBe("3(2(1,1),0,1)");
   });
 
+  test("drops overlay when replacing tile with overlay: \"drop\"", () => {
+    const withOverlay = "2(1{1},1)";
+    const key = getStableKey(withOverlay, "frame", 0);
+    expect(
+      replaceNodeByStableId(withOverlay, key, "-", { overlay: "drop" }),
+    ).toBe("2(-,1)");
+  });
+
   test("throws on unknown stableKey", () => {
     expect(() => replaceNodeByStableId(m0, "nonexistent/key", "1")).toThrow(
       /no node found/i,

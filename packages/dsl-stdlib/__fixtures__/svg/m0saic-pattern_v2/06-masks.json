@@ -1,0 +1,1548 @@
+{
+  "example": "m-logo",
+  "sourceGeometryFile": "02-geometry.json",
+  "sourceRectManifest": "04-rects.json",
+  "sourceComposedFile": "05-composed.m0",
+  "masks": [
+    {
+      "shapeId": "shape-0093",
+      "sourceIndex": 93,
+      "canonicalIndex": 0,
+      "ownerKind": "frame",
+      "stableKey": "f0",
+      "kind": "rect",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 110,
+        "height": 143
+      }
+    },
+    {
+      "shapeId": "shape-0094",
+      "sourceIndex": 94,
+      "canonicalIndex": 1,
+      "ownerKind": "frame",
+      "stableKey": "f1",
+      "kind": "rect",
+      "bounds": {
+        "x": 134,
+        "y": 0,
+        "width": 62,
+        "height": 59
+      }
+    },
+    {
+      "shapeId": "shape-0096",
+      "sourceIndex": 96,
+      "canonicalIndex": 2,
+      "ownerKind": "frame",
+      "stableKey": "f2",
+      "kind": "rect",
+      "bounds": {
+        "x": 221,
+        "y": 0,
+        "width": 109,
+        "height": 143
+      }
+    },
+    {
+      "shapeId": "shape-0097",
+      "sourceIndex": 97,
+      "canonicalIndex": 3,
+      "ownerKind": "frame",
+      "stableKey": "f3",
+      "kind": "rect",
+      "bounds": {
+        "x": 354,
+        "y": 0,
+        "width": 196,
+        "height": 143
+      }
+    },
+    {
+      "shapeId": "shape-0099",
+      "sourceIndex": 99,
+      "canonicalIndex": 4,
+      "ownerKind": "frame",
+      "stableKey": "f4",
+      "kind": "rect",
+      "bounds": {
+        "x": 574,
+        "y": 0,
+        "width": 62,
+        "height": 59
+      }
+    },
+    {
+      "shapeId": "shape-0101",
+      "sourceIndex": 101,
+      "canonicalIndex": 5,
+      "ownerKind": "frame",
+      "stableKey": "f5",
+      "kind": "rect",
+      "bounds": {
+        "x": 660,
+        "y": 0,
+        "width": 111,
+        "height": 143
+      }
+    },
+    {
+      "shapeId": "shape-0098",
+      "sourceIndex": 98,
+      "canonicalIndex": 6,
+      "ownerKind": "frame",
+      "stableKey": "f6",
+      "kind": "rect",
+      "bounds": {
+        "x": 795,
+        "y": 0,
+        "width": 61,
+        "height": 143
+      }
+    },
+    {
+      "shapeId": "shape-0102",
+      "sourceIndex": 102,
+      "canonicalIndex": 7,
+      "ownerKind": "frame",
+      "stableKey": "f7",
+      "kind": "rect",
+      "bounds": {
+        "x": 880,
+        "y": 0,
+        "width": 110,
+        "height": 143
+      }
+    },
+    {
+      "shapeId": "shape-0103",
+      "sourceIndex": 103,
+      "canonicalIndex": 8,
+      "ownerKind": "frame",
+      "stableKey": "f8",
+      "kind": "rect",
+      "bounds": {
+        "x": 1014,
+        "y": 0,
+        "width": 61,
+        "height": 59
+      }
+    },
+    {
+      "shapeId": "shape-0105",
+      "sourceIndex": 105,
+      "canonicalIndex": 9,
+      "ownerKind": "frame",
+      "stableKey": "f9",
+      "kind": "rect",
+      "bounds": {
+        "x": 1099,
+        "y": 0,
+        "width": 331,
+        "height": 143
+      }
+    },
+    {
+      "shapeId": "shape-0106",
+      "sourceIndex": 106,
+      "canonicalIndex": 10,
+      "ownerKind": "frame",
+      "stableKey": "f10",
+      "kind": "rect",
+      "bounds": {
+        "x": 1454,
+        "y": 0,
+        "width": 194,
+        "height": 143
+      }
+    },
+    {
+      "shapeId": "shape-0108",
+      "sourceIndex": 108,
+      "canonicalIndex": 11,
+      "ownerKind": "frame",
+      "stableKey": "f11",
+      "kind": "rect",
+      "bounds": {
+        "x": 1673,
+        "y": 0,
+        "width": 61,
+        "height": 59
+      }
+    },
+    {
+      "shapeId": "shape-0092",
+      "sourceIndex": 92,
+      "canonicalIndex": 12,
+      "ownerKind": "frame",
+      "stableKey": "f12",
+      "kind": "rect",
+      "bounds": {
+        "x": 1758,
+        "y": 0,
+        "width": 111,
+        "height": 143
+      }
+    },
+    {
+      "shapeId": "shape-0107",
+      "sourceIndex": 107,
+      "canonicalIndex": 13,
+      "ownerKind": "frame",
+      "stableKey": "f13",
+      "kind": "rect",
+      "bounds": {
+        "x": 1893,
+        "y": 0,
+        "width": 61,
+        "height": 143
+      }
+    },
+    {
+      "shapeId": "shape-0091",
+      "sourceIndex": 91,
+      "canonicalIndex": 14,
+      "ownerKind": "frame",
+      "stableKey": "f14",
+      "kind": "rect",
+      "bounds": {
+        "x": 1979,
+        "y": 0,
+        "width": 110,
+        "height": 143
+      }
+    },
+    {
+      "shapeId": "shape-0089",
+      "sourceIndex": 89,
+      "canonicalIndex": 15,
+      "ownerKind": "frame",
+      "stableKey": "f15",
+      "kind": "rect",
+      "bounds": {
+        "x": 2114,
+        "y": 0,
+        "width": 61,
+        "height": 59
+      }
+    },
+    {
+      "shapeId": "shape-0095",
+      "sourceIndex": 95,
+      "canonicalIndex": 16,
+      "ownerKind": "frame",
+      "stableKey": "f16",
+      "kind": "rect",
+      "bounds": {
+        "x": 134,
+        "y": 82,
+        "width": 62,
+        "height": 61
+      }
+    },
+    {
+      "shapeId": "shape-0100",
+      "sourceIndex": 100,
+      "canonicalIndex": 17,
+      "ownerKind": "frame",
+      "stableKey": "f17",
+      "kind": "rect",
+      "bounds": {
+        "x": 574,
+        "y": 82,
+        "width": 62,
+        "height": 61
+      }
+    },
+    {
+      "shapeId": "shape-0104",
+      "sourceIndex": 104,
+      "canonicalIndex": 18,
+      "ownerKind": "frame",
+      "stableKey": "f18",
+      "kind": "rect",
+      "bounds": {
+        "x": 1014,
+        "y": 82,
+        "width": 61,
+        "height": 61
+      }
+    },
+    {
+      "shapeId": "shape-0109",
+      "sourceIndex": 109,
+      "canonicalIndex": 19,
+      "ownerKind": "frame",
+      "stableKey": "f19",
+      "kind": "rect",
+      "bounds": {
+        "x": 1673,
+        "y": 82,
+        "width": 61,
+        "height": 61
+      }
+    },
+    {
+      "shapeId": "shape-0090",
+      "sourceIndex": 90,
+      "canonicalIndex": 20,
+      "ownerKind": "frame",
+      "stableKey": "f20",
+      "kind": "rect",
+      "bounds": {
+        "x": 2114,
+        "y": 82,
+        "width": 61,
+        "height": 61
+      }
+    },
+    {
+      "shapeId": "shape-0077",
+      "sourceIndex": 77,
+      "canonicalIndex": 21,
+      "ownerKind": "frame",
+      "stableKey": "f21",
+      "kind": "rect",
+      "bounds": {
+        "x": 0,
+        "y": 172,
+        "width": 86,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0076",
+      "sourceIndex": 76,
+      "canonicalIndex": 22,
+      "ownerKind": "frame",
+      "stableKey": "f22",
+      "kind": "rect",
+      "bounds": {
+        "x": 110,
+        "y": 172,
+        "width": 87,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0078",
+      "sourceIndex": 78,
+      "canonicalIndex": 23,
+      "ownerKind": "frame",
+      "stableKey": "f23",
+      "kind": "rect",
+      "bounds": {
+        "x": 221,
+        "y": 172,
+        "width": 195,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0080",
+      "sourceIndex": 80,
+      "canonicalIndex": 24,
+      "ownerKind": "frame",
+      "stableKey": "f24",
+      "kind": "rect",
+      "bounds": {
+        "x": 440,
+        "y": 172,
+        "width": 86,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0079",
+      "sourceIndex": 79,
+      "canonicalIndex": 25,
+      "ownerKind": "frame",
+      "stableKey": "f25",
+      "kind": "rect",
+      "bounds": {
+        "x": 550,
+        "y": 172,
+        "width": 86,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0081",
+      "sourceIndex": 81,
+      "canonicalIndex": 26,
+      "ownerKind": "frame",
+      "stableKey": "f26",
+      "kind": "rect",
+      "bounds": {
+        "x": 660,
+        "y": 172,
+        "width": 196,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0083",
+      "sourceIndex": 83,
+      "canonicalIndex": 27,
+      "ownerKind": "frame",
+      "stableKey": "f27",
+      "kind": "rect",
+      "bounds": {
+        "x": 880,
+        "y": 172,
+        "width": 86,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0082",
+      "sourceIndex": 82,
+      "canonicalIndex": 28,
+      "ownerKind": "frame",
+      "stableKey": "f28",
+      "kind": "rect",
+      "bounds": {
+        "x": 990,
+        "y": 172,
+        "width": 85,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0085",
+      "sourceIndex": 85,
+      "canonicalIndex": 29,
+      "ownerKind": "frame",
+      "stableKey": "f29",
+      "kind": "rect",
+      "bounds": {
+        "x": 1099,
+        "y": 172,
+        "width": 87,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0084",
+      "sourceIndex": 84,
+      "canonicalIndex": 30,
+      "ownerKind": "frame",
+      "stableKey": "f30",
+      "kind": "rect",
+      "bounds": {
+        "x": 1210,
+        "y": 172,
+        "width": 86,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0086",
+      "sourceIndex": 86,
+      "canonicalIndex": 31,
+      "ownerKind": "frame",
+      "stableKey": "f31",
+      "kind": "rect",
+      "bounds": {
+        "x": 1320,
+        "y": 172,
+        "width": 195,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0088",
+      "sourceIndex": 88,
+      "canonicalIndex": 32,
+      "ownerKind": "frame",
+      "stableKey": "f32",
+      "kind": "rect",
+      "bounds": {
+        "x": 1539,
+        "y": 172,
+        "width": 85,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0087",
+      "sourceIndex": 87,
+      "canonicalIndex": 33,
+      "ownerKind": "frame",
+      "stableKey": "f33",
+      "kind": "rect",
+      "bounds": {
+        "x": 1648,
+        "y": 172,
+        "width": 86,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0075",
+      "sourceIndex": 75,
+      "canonicalIndex": 34,
+      "ownerKind": "frame",
+      "stableKey": "f34",
+      "kind": "rect",
+      "bounds": {
+        "x": 1758,
+        "y": 172,
+        "width": 196,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0074",
+      "sourceIndex": 74,
+      "canonicalIndex": 35,
+      "ownerKind": "frame",
+      "stableKey": "f35",
+      "kind": "rect",
+      "bounds": {
+        "x": 1979,
+        "y": 172,
+        "width": 86,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0073",
+      "sourceIndex": 73,
+      "canonicalIndex": 36,
+      "ownerKind": "frame",
+      "stableKey": "f36",
+      "kind": "rect",
+      "bounds": {
+        "x": 2089,
+        "y": 172,
+        "width": 86,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0058",
+      "sourceIndex": 58,
+      "canonicalIndex": 37,
+      "ownerKind": "frame",
+      "stableKey": "f37",
+      "kind": "rect",
+      "bounds": {
+        "x": 0,
+        "y": 344,
+        "width": 110,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0059",
+      "sourceIndex": 59,
+      "canonicalIndex": 38,
+      "ownerKind": "frame",
+      "stableKey": "f38",
+      "kind": "rect",
+      "bounds": {
+        "x": 134,
+        "y": 344,
+        "width": 62,
+        "height": 59
+      }
+    },
+    {
+      "shapeId": "shape-0061",
+      "sourceIndex": 61,
+      "canonicalIndex": 39,
+      "ownerKind": "frame",
+      "stableKey": "f39",
+      "kind": "rect",
+      "bounds": {
+        "x": 221,
+        "y": 344,
+        "width": 61,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0068",
+      "sourceIndex": 68,
+      "canonicalIndex": 40,
+      "ownerKind": "frame",
+      "stableKey": "f40",
+      "kind": "rect",
+      "bounds": {
+        "x": 306,
+        "y": 344,
+        "width": 244,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0066",
+      "sourceIndex": 66,
+      "canonicalIndex": 41,
+      "ownerKind": "frame",
+      "stableKey": "f41",
+      "kind": "rect",
+      "bounds": {
+        "x": 574,
+        "y": 344,
+        "width": 149,
+        "height": 59
+      }
+    },
+    {
+      "shapeId": "shape-0062",
+      "sourceIndex": 62,
+      "canonicalIndex": 42,
+      "ownerKind": "frame",
+      "stableKey": "f42",
+      "kind": "rect",
+      "bounds": {
+        "x": 747,
+        "y": 344,
+        "width": 109,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0063",
+      "sourceIndex": 63,
+      "canonicalIndex": 43,
+      "ownerKind": "frame",
+      "stableKey": "f43",
+      "kind": "rect",
+      "bounds": {
+        "x": 880,
+        "y": 344,
+        "width": 110,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0064",
+      "sourceIndex": 64,
+      "canonicalIndex": 44,
+      "ownerKind": "frame",
+      "stableKey": "f44",
+      "kind": "rect",
+      "bounds": {
+        "x": 1014,
+        "y": 344,
+        "width": 61,
+        "height": 59
+      }
+    },
+    {
+      "shapeId": "shape-0069",
+      "sourceIndex": 69,
+      "canonicalIndex": 45,
+      "ownerKind": "frame",
+      "stableKey": "f45",
+      "kind": "rect",
+      "bounds": {
+        "x": 1100,
+        "y": 344,
+        "width": 111,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0070",
+      "sourceIndex": 70,
+      "canonicalIndex": 46,
+      "ownerKind": "frame",
+      "stableKey": "f46",
+      "kind": "rect",
+      "bounds": {
+        "x": 1235,
+        "y": 344,
+        "width": 61,
+        "height": 59
+      }
+    },
+    {
+      "shapeId": "shape-0072",
+      "sourceIndex": 72,
+      "canonicalIndex": 47,
+      "ownerKind": "frame",
+      "stableKey": "f47",
+      "kind": "rect",
+      "bounds": {
+        "x": 1320,
+        "y": 344,
+        "width": 62,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0053",
+      "sourceIndex": 53,
+      "canonicalIndex": 48,
+      "ownerKind": "frame",
+      "stableKey": "f48",
+      "kind": "rect",
+      "bounds": {
+        "x": 1406,
+        "y": 344,
+        "width": 243,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0051",
+      "sourceIndex": 51,
+      "canonicalIndex": 49,
+      "ownerKind": "frame",
+      "stableKey": "f49",
+      "kind": "rect",
+      "bounds": {
+        "x": 1673,
+        "y": 344,
+        "width": 148,
+        "height": 59
+      }
+    },
+    {
+      "shapeId": "shape-0057",
+      "sourceIndex": 57,
+      "canonicalIndex": 50,
+      "ownerKind": "frame",
+      "stableKey": "f50",
+      "kind": "rect",
+      "bounds": {
+        "x": 1845,
+        "y": 344,
+        "width": 110,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0056",
+      "sourceIndex": 56,
+      "canonicalIndex": 51,
+      "ownerKind": "frame",
+      "stableKey": "f51",
+      "kind": "rect",
+      "bounds": {
+        "x": 1980,
+        "y": 344,
+        "width": 110,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0054",
+      "sourceIndex": 54,
+      "canonicalIndex": 52,
+      "ownerKind": "frame",
+      "stableKey": "f52",
+      "kind": "rect",
+      "bounds": {
+        "x": 2114,
+        "y": 344,
+        "width": 61,
+        "height": 59
+      }
+    },
+    {
+      "shapeId": "shape-0060",
+      "sourceIndex": 60,
+      "canonicalIndex": 53,
+      "ownerKind": "frame",
+      "stableKey": "f53",
+      "kind": "rect",
+      "bounds": {
+        "x": 134,
+        "y": 427,
+        "width": 62,
+        "height": 61
+      }
+    },
+    {
+      "shapeId": "shape-0067",
+      "sourceIndex": 67,
+      "canonicalIndex": 54,
+      "ownerKind": "frame",
+      "stableKey": "f54",
+      "kind": "rect",
+      "bounds": {
+        "x": 574,
+        "y": 427,
+        "width": 149,
+        "height": 61
+      }
+    },
+    {
+      "shapeId": "shape-0065",
+      "sourceIndex": 65,
+      "canonicalIndex": 55,
+      "ownerKind": "frame",
+      "stableKey": "f55",
+      "kind": "rect",
+      "bounds": {
+        "x": 1014,
+        "y": 427,
+        "width": 61,
+        "height": 61
+      }
+    },
+    {
+      "shapeId": "shape-0071",
+      "sourceIndex": 71,
+      "canonicalIndex": 56,
+      "ownerKind": "frame",
+      "stableKey": "f56",
+      "kind": "rect",
+      "bounds": {
+        "x": 1235,
+        "y": 427,
+        "width": 61,
+        "height": 61
+      }
+    },
+    {
+      "shapeId": "shape-0052",
+      "sourceIndex": 52,
+      "canonicalIndex": 57,
+      "ownerKind": "frame",
+      "stableKey": "f57",
+      "kind": "rect",
+      "bounds": {
+        "x": 1673,
+        "y": 427,
+        "width": 148,
+        "height": 61
+      }
+    },
+    {
+      "shapeId": "shape-0055",
+      "sourceIndex": 55,
+      "canonicalIndex": 58,
+      "ownerKind": "frame",
+      "stableKey": "f58",
+      "kind": "rect",
+      "bounds": {
+        "x": 2114,
+        "y": 427,
+        "width": 61,
+        "height": 61
+      }
+    },
+    {
+      "shapeId": "shape-0041",
+      "sourceIndex": 41,
+      "canonicalIndex": 59,
+      "ownerKind": "frame",
+      "stableKey": "f59",
+      "kind": "rect",
+      "bounds": {
+        "x": 0,
+        "y": 516,
+        "width": 62,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0040",
+      "sourceIndex": 40,
+      "canonicalIndex": 60,
+      "ownerKind": "frame",
+      "stableKey": "f60",
+      "kind": "rect",
+      "bounds": {
+        "x": 86,
+        "y": 516,
+        "width": 110,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0042",
+      "sourceIndex": 42,
+      "canonicalIndex": 61,
+      "ownerKind": "frame",
+      "stableKey": "f61",
+      "kind": "rect",
+      "bounds": {
+        "x": 221,
+        "y": 516,
+        "width": 195,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0043",
+      "sourceIndex": 43,
+      "canonicalIndex": 62,
+      "ownerKind": "frame",
+      "stableKey": "f62",
+      "kind": "rect",
+      "bounds": {
+        "x": 440,
+        "y": 516,
+        "width": 62,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0046",
+      "sourceIndex": 46,
+      "canonicalIndex": 63,
+      "ownerKind": "frame",
+      "stableKey": "f63",
+      "kind": "rect",
+      "bounds": {
+        "x": 526,
+        "y": 516,
+        "width": 330,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0045",
+      "sourceIndex": 45,
+      "canonicalIndex": 64,
+      "ownerKind": "frame",
+      "stableKey": "f64",
+      "kind": "rect",
+      "bounds": {
+        "x": 880,
+        "y": 516,
+        "width": 62,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0044",
+      "sourceIndex": 44,
+      "canonicalIndex": 65,
+      "ownerKind": "frame",
+      "stableKey": "f65",
+      "kind": "rect",
+      "bounds": {
+        "x": 966,
+        "y": 516,
+        "width": 109,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0048",
+      "sourceIndex": 48,
+      "canonicalIndex": 66,
+      "ownerKind": "frame",
+      "stableKey": "f66",
+      "kind": "rect",
+      "bounds": {
+        "x": 1100,
+        "y": 516,
+        "width": 62,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0047",
+      "sourceIndex": 47,
+      "canonicalIndex": 67,
+      "ownerKind": "frame",
+      "stableKey": "f67",
+      "kind": "rect",
+      "bounds": {
+        "x": 1186,
+        "y": 516,
+        "width": 110,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0049",
+      "sourceIndex": 49,
+      "canonicalIndex": 68,
+      "ownerKind": "frame",
+      "stableKey": "f68",
+      "kind": "rect",
+      "bounds": {
+        "x": 1320,
+        "y": 516,
+        "width": 195,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0050",
+      "sourceIndex": 50,
+      "canonicalIndex": 69,
+      "ownerKind": "frame",
+      "stableKey": "f69",
+      "kind": "rect",
+      "bounds": {
+        "x": 1539,
+        "y": 516,
+        "width": 62,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0038",
+      "sourceIndex": 38,
+      "canonicalIndex": 70,
+      "ownerKind": "frame",
+      "stableKey": "f70",
+      "kind": "rect",
+      "bounds": {
+        "x": 1625,
+        "y": 516,
+        "width": 329,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0037",
+      "sourceIndex": 37,
+      "canonicalIndex": 71,
+      "ownerKind": "frame",
+      "stableKey": "f71",
+      "kind": "rect",
+      "bounds": {
+        "x": 1980,
+        "y": 516,
+        "width": 62,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0039",
+      "sourceIndex": 39,
+      "canonicalIndex": 72,
+      "ownerKind": "frame",
+      "stableKey": "f72",
+      "kind": "rect",
+      "bounds": {
+        "x": 2066,
+        "y": 516,
+        "width": 109,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0025",
+      "sourceIndex": 25,
+      "canonicalIndex": 73,
+      "ownerKind": "frame",
+      "stableKey": "f73",
+      "kind": "rect",
+      "bounds": {
+        "x": 0,
+        "y": 689,
+        "width": 62,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0026",
+      "sourceIndex": 26,
+      "canonicalIndex": 74,
+      "ownerKind": "frame",
+      "stableKey": "f74",
+      "kind": "rect",
+      "bounds": {
+        "x": 86,
+        "y": 689,
+        "width": 244,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0027",
+      "sourceIndex": 27,
+      "canonicalIndex": 75,
+      "ownerKind": "frame",
+      "stableKey": "f75",
+      "kind": "rect",
+      "bounds": {
+        "x": 354,
+        "y": 689,
+        "width": 62,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0036",
+      "sourceIndex": 36,
+      "canonicalIndex": 76,
+      "ownerKind": "frame",
+      "stableKey": "f76",
+      "kind": "rect",
+      "bounds": {
+        "x": 440,
+        "y": 689,
+        "width": 149,
+        "height": 59
+      }
+    },
+    {
+      "shapeId": "shape-0030",
+      "sourceIndex": 30,
+      "canonicalIndex": 77,
+      "ownerKind": "frame",
+      "stableKey": "f77",
+      "kind": "rect",
+      "bounds": {
+        "x": 612,
+        "y": 689,
+        "width": 110,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0028",
+      "sourceIndex": 28,
+      "canonicalIndex": 78,
+      "ownerKind": "frame",
+      "stableKey": "f78",
+      "kind": "rect",
+      "bounds": {
+        "x": 747,
+        "y": 689,
+        "width": 195,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0029",
+      "sourceIndex": 29,
+      "canonicalIndex": 79,
+      "ownerKind": "frame",
+      "stableKey": "f79",
+      "kind": "rect",
+      "bounds": {
+        "x": 966,
+        "y": 689,
+        "width": 109,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0032",
+      "sourceIndex": 32,
+      "canonicalIndex": 80,
+      "ownerKind": "frame",
+      "stableKey": "f80",
+      "kind": "rect",
+      "bounds": {
+        "x": 1100,
+        "y": 689,
+        "width": 62,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0033",
+      "sourceIndex": 33,
+      "canonicalIndex": 81,
+      "ownerKind": "frame",
+      "stableKey": "f81",
+      "kind": "rect",
+      "bounds": {
+        "x": 1186,
+        "y": 689,
+        "width": 244,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0034",
+      "sourceIndex": 34,
+      "canonicalIndex": 82,
+      "ownerKind": "frame",
+      "stableKey": "f82",
+      "kind": "rect",
+      "bounds": {
+        "x": 1454,
+        "y": 689,
+        "width": 61,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0021",
+      "sourceIndex": 21,
+      "canonicalIndex": 83,
+      "ownerKind": "frame",
+      "stableKey": "f83",
+      "kind": "rect",
+      "bounds": {
+        "x": 1539,
+        "y": 689,
+        "width": 148,
+        "height": 59
+      }
+    },
+    {
+      "shapeId": "shape-0023",
+      "sourceIndex": 23,
+      "canonicalIndex": 84,
+      "ownerKind": "frame",
+      "stableKey": "f84",
+      "kind": "rect",
+      "bounds": {
+        "x": 1710,
+        "y": 689,
+        "width": 110,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0035",
+      "sourceIndex": 35,
+      "canonicalIndex": 85,
+      "ownerKind": "frame",
+      "stableKey": "f85",
+      "kind": "rect",
+      "bounds": {
+        "x": 1845,
+        "y": 689,
+        "width": 197,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0024",
+      "sourceIndex": 24,
+      "canonicalIndex": 86,
+      "ownerKind": "frame",
+      "stableKey": "f86",
+      "kind": "rect",
+      "bounds": {
+        "x": 2066,
+        "y": 689,
+        "width": 109,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0031",
+      "sourceIndex": 31,
+      "canonicalIndex": 87,
+      "ownerKind": "frame",
+      "stableKey": "f87",
+      "kind": "rect",
+      "bounds": {
+        "x": 440,
+        "y": 772,
+        "width": 149,
+        "height": 61
+      }
+    },
+    {
+      "shapeId": "shape-0022",
+      "sourceIndex": 22,
+      "canonicalIndex": 88,
+      "ownerKind": "frame",
+      "stableKey": "f88",
+      "kind": "rect",
+      "bounds": {
+        "x": 1539,
+        "y": 772,
+        "width": 148,
+        "height": 61
+      }
+    },
+    {
+      "shapeId": "shape-0009",
+      "sourceIndex": 9,
+      "canonicalIndex": 89,
+      "ownerKind": "frame",
+      "stableKey": "f89",
+      "kind": "rect",
+      "bounds": {
+        "x": 0,
+        "y": 862,
+        "width": 110,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0010",
+      "sourceIndex": 10,
+      "canonicalIndex": 90,
+      "ownerKind": "frame",
+      "stableKey": "f90",
+      "kind": "rect",
+      "bounds": {
+        "x": 135,
+        "y": 862,
+        "width": 62,
+        "height": 59
+      }
+    },
+    {
+      "shapeId": "shape-0012",
+      "sourceIndex": 12,
+      "canonicalIndex": 91,
+      "ownerKind": "frame",
+      "stableKey": "f91",
+      "kind": "rect",
+      "bounds": {
+        "x": 221,
+        "y": 862,
+        "width": 109,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0013",
+      "sourceIndex": 13,
+      "canonicalIndex": 92,
+      "ownerKind": "frame",
+      "stableKey": "f92",
+      "kind": "rect",
+      "bounds": {
+        "x": 355,
+        "y": 862,
+        "width": 195,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0014",
+      "sourceIndex": 14,
+      "canonicalIndex": 93,
+      "ownerKind": "frame",
+      "stableKey": "f93",
+      "kind": "rect",
+      "bounds": {
+        "x": 575,
+        "y": 862,
+        "width": 61,
+        "height": 59
+      }
+    },
+    {
+      "shapeId": "shape-0016",
+      "sourceIndex": 16,
+      "canonicalIndex": 94,
+      "ownerKind": "frame",
+      "stableKey": "f94",
+      "kind": "rect",
+      "bounds": {
+        "x": 660,
+        "y": 862,
+        "width": 111,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0017",
+      "sourceIndex": 17,
+      "canonicalIndex": 95,
+      "ownerKind": "frame",
+      "stableKey": "f95",
+      "kind": "rect",
+      "bounds": {
+        "x": 795,
+        "y": 862,
+        "width": 61,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0018",
+      "sourceIndex": 18,
+      "canonicalIndex": 96,
+      "ownerKind": "frame",
+      "stableKey": "f96",
+      "kind": "rect",
+      "bounds": {
+        "x": 880,
+        "y": 862,
+        "width": 110,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0019",
+      "sourceIndex": 19,
+      "canonicalIndex": 97,
+      "ownerKind": "frame",
+      "stableKey": "f97",
+      "kind": "rect",
+      "bounds": {
+        "x": 1014,
+        "y": 862,
+        "width": 61,
+        "height": 59
+      }
+    },
+    {
+      "shapeId": "shape-0008",
+      "sourceIndex": 8,
+      "canonicalIndex": 98,
+      "ownerKind": "frame",
+      "stableKey": "f98",
+      "kind": "rect",
+      "bounds": {
+        "x": 1100,
+        "y": 862,
+        "width": 330,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0000",
+      "sourceIndex": 0,
+      "canonicalIndex": 99,
+      "ownerKind": "frame",
+      "stableKey": "f99",
+      "kind": "rect",
+      "bounds": {
+        "x": 1454,
+        "y": 862,
+        "width": 195,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0001",
+      "sourceIndex": 1,
+      "canonicalIndex": 100,
+      "ownerKind": "frame",
+      "stableKey": "f100",
+      "kind": "rect",
+      "bounds": {
+        "x": 1673,
+        "y": 862,
+        "width": 61,
+        "height": 59
+      }
+    },
+    {
+      "shapeId": "shape-0003",
+      "sourceIndex": 3,
+      "canonicalIndex": 101,
+      "ownerKind": "frame",
+      "stableKey": "f101",
+      "kind": "rect",
+      "bounds": {
+        "x": 1758,
+        "y": 862,
+        "width": 111,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0004",
+      "sourceIndex": 4,
+      "canonicalIndex": 102,
+      "ownerKind": "frame",
+      "stableKey": "f102",
+      "kind": "rect",
+      "bounds": {
+        "x": 1893,
+        "y": 862,
+        "width": 62,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0005",
+      "sourceIndex": 5,
+      "canonicalIndex": 103,
+      "ownerKind": "frame",
+      "stableKey": "f103",
+      "kind": "rect",
+      "bounds": {
+        "x": 1980,
+        "y": 862,
+        "width": 110,
+        "height": 144
+      }
+    },
+    {
+      "shapeId": "shape-0006",
+      "sourceIndex": 6,
+      "canonicalIndex": 104,
+      "ownerKind": "frame",
+      "stableKey": "f104",
+      "kind": "rect",
+      "bounds": {
+        "x": 2114,
+        "y": 862,
+        "width": 61,
+        "height": 59
+      }
+    },
+    {
+      "shapeId": "shape-0011",
+      "sourceIndex": 11,
+      "canonicalIndex": 105,
+      "ownerKind": "frame",
+      "stableKey": "f105",
+      "kind": "rect",
+      "bounds": {
+        "x": 135,
+        "y": 945,
+        "width": 62,
+        "height": 61
+      }
+    },
+    {
+      "shapeId": "shape-0015",
+      "sourceIndex": 15,
+      "canonicalIndex": 106,
+      "ownerKind": "frame",
+      "stableKey": "f106",
+      "kind": "rect",
+      "bounds": {
+        "x": 575,
+        "y": 945,
+        "width": 61,
+        "height": 61
+      }
+    },
+    {
+      "shapeId": "shape-0020",
+      "sourceIndex": 20,
+      "canonicalIndex": 107,
+      "ownerKind": "frame",
+      "stableKey": "f107",
+      "kind": "rect",
+      "bounds": {
+        "x": 1014,
+        "y": 945,
+        "width": 61,
+        "height": 61
+      }
+    },
+    {
+      "shapeId": "shape-0002",
+      "sourceIndex": 2,
+      "canonicalIndex": 108,
+      "ownerKind": "frame",
+      "stableKey": "f108",
+      "kind": "rect",
+      "bounds": {
+        "x": 1673,
+        "y": 945,
+        "width": 61,
+        "height": 61
+      }
+    },
+    {
+      "shapeId": "shape-0007",
+      "sourceIndex": 7,
+      "canonicalIndex": 109,
+      "ownerKind": "frame",
+      "stableKey": "f109",
+      "kind": "rect",
+      "bounds": {
+        "x": 2114,
+        "y": 945,
+        "width": 61,
+        "height": 61
+      }
+    }
+  ]
+}
