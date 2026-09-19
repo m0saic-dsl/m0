@@ -1,0 +1,10 @@
+# m0
+# version: 1
+# created: 2026-06-27T00:00:00.000Z
+# size: 1128x2436
+# app: hand-drawn (genesis)
+# title: Passthrough donation — LEGACY (backward), reproduced under current engine
+# source: original hand-drawn derivation
+# note: Reproduces the sheets legacy BACKWARD donation under todays forward engine by moving the 0 one slot earlier: now row 2 (0) donates FORWARD to the band, so the big 1128x1218 region sits in the MIDDLE and the bottom tile is 1128x609 - matching the original sheet. See README.md.
+
+4[1,0,3(1,2(2[2[1,1],1],2[1,2[1,1]]),1),1]

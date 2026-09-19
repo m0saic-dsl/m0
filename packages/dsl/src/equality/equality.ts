@@ -2,24 +2,6 @@ import { toCanonicalM0String } from "../format";
 import { parseM0StringToRenderFrames } from "../parse";
 
 /**
- * Canonical equality: are two DSL strings the same normalized program?
- *
- * Canonicalizes both inputs (strip whitespace, F->1, >->0) and compares
- * the resulting strings. O(N) in the total length of both inputs.
- *
- * Canonical equality is strictly stronger than frame equality: if two
- * strings are canonically equal, they are the same DSL program and
- * will always produce identical ordered frame output and geometry.
- *
- * The inverse is not true — two different canonical strings may still
- * be frame-equal (e.g. `4(0,1,0,1)` and `2(1,1)` produce the same
- * frames but differ canonically).
- */
-export function areM0StringsCanonicalEqual(a: string, b: string): boolean {
-  return toCanonicalM0String(a) === toCanonicalM0String(b);
-}
-
-/**
  * Frame/logical equality: do two DSL strings produce the exact same
  * ordered frame output?
  *

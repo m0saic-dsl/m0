@@ -1,0 +1,10 @@
+# m0
+# version: 1
+# created: 2026-06-27T10:29:24.123Z
+# size: 3840x2160
+# app: hand-drawn (genesis)
+# title: Genesis derivation — 22-frame nested subdivision
+# source: original hand-drawn derivation
+# note: First worked example used to discover the m0 grammar. See README.md.
+
+2(2(4[1,1,2(1,2[1,1]),1],4[1,1,2(2[1,1],1),1]),2(2[2(1,2[1,1]),2[1,1]],2[2(2[1,1],1),2[1,1]]))

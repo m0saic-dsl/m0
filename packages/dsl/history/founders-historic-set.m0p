@@ -1,0 +1,187 @@
+{
+  "format": "m0p",
+  "version": 1,
+  "created": "2026-06-27T00:00:00.000Z",
+  "app": "hand-drawn (genesis)",
+  "appVersion": null,
+  "meta": {
+    "title": "The Founder's Historic Set",
+    "source": "packages/dsl/history",
+    "note": "Every layout the m0 language was first derived from, by hand, on paper — collected into one pack. Each variant is a genuine, still-valid layout; provenance (meta.source) points back to its history entry + hand-drawn sheet. A cheeky callback to where the grammar came from."
+  },
+  "regions": null,
+  "custom": null,
+  "variants": {
+    "01-genesis-22-frame": {
+      "meta": {
+        "title": "Genesis — 22-frame nested subdivision",
+        "source": "history/01-22-frame-grid (the sheet where the grammar was first written down)"
+      },
+      "size": {
+        "width": 3840,
+        "height": 2160
+      },
+      "m0": "2(2(4[1,1,2(1,2[1,1]),1],4[1,1,2(2[1,1],1),1]),2(2[2(1,2[1,1]),2[1,1]],2[2(2[1,1],1),2[1,1]]))",
+      "labels": null,
+      "derive": {
+        "background": null
+      },
+      "masks": null,
+      "fill": null,
+      "rankSets": null,
+      "custom": null
+    },
+    "02-offset-11-frame": {
+      "meta": {
+        "title": "Offset-stack — layout 2 (11 frames)",
+        "source": "history/02-offset-stack-quantization/layout-2.m0"
+      },
+      "size": {
+        "width": 3840,
+        "height": 2160
+      },
+      "m0": "2(2[2(1,2[1,1]),1],2[2(2[1,1],2[1,1]),3(1,1,1)])",
+      "labels": null,
+      "derive": {
+        "background": null
+      },
+      "masks": null,
+      "fill": null,
+      "rankSets": null,
+      "custom": null
+    },
+    "02-offset-16-frame": {
+      "meta": {
+        "title": "Offset-stack — layout 3 (16 frames)",
+        "source": "history/02-offset-stack-quantization/layout-3.m0"
+      },
+      "size": {
+        "width": 3840,
+        "height": 2160
+      },
+      "m0": "3(2[1,1],2[2(2[1,1],2[1,1]),3(1,1,1)],2(2[1,1],4[2(1,1),1,1,1]))",
+      "labels": null,
+      "derive": {
+        "background": null
+      },
+      "masks": null,
+      "fill": null,
+      "rankSets": null,
+      "custom": null
+    },
+    "02-offset-8-frame": {
+      "meta": {
+        "title": "Offset-stack — layout 1 (8 frames)",
+        "source": "history/02-offset-stack-quantization/layout-1.m0"
+      },
+      "size": {
+        "width": 3840,
+        "height": 2160
+      },
+      "m0": "2(2[2(1,2[1,1]),1],2[1,3(1,1,1)])",
+      "labels": null,
+      "derive": {
+        "background": null
+      },
+      "masks": null,
+      "fill": null,
+      "rankSets": null,
+      "custom": null
+    },
+    "03-passthrough-current": {
+      "meta": {
+        "title": "Passthrough donation — current (forward)",
+        "source": "history/03-passthrough-donation-direction/current.m0"
+      },
+      "size": {
+        "width": 1128,
+        "height": 2436
+      },
+      "m0": "4[1,3(1,2(2[2[1,1],1],2[1,2[1,1]]),1),0,1]",
+      "labels": null,
+      "derive": {
+        "background": null
+      },
+      "masks": null,
+      "fill": null,
+      "rankSets": null,
+      "custom": null
+    },
+    "03-passthrough-decision": {
+      "meta": {
+        "title": "Passthrough donation — the decision (forward), canonical example",
+        "source": "history/03-passthrough-donation-direction/decision.m0"
+      },
+      "size": {
+        "width": 1080,
+        "height": 720
+      },
+      "m0": "4(1,0,2[1,1],1)",
+      "labels": null,
+      "derive": {
+        "background": null
+      },
+      "masks": null,
+      "fill": null,
+      "rankSets": null,
+      "custom": null
+    },
+    "03-passthrough-legacy": {
+      "meta": {
+        "title": "Passthrough donation — legacy (backward), reproduced under current engine",
+        "source": "history/03-passthrough-donation-direction/legacy.m0"
+      },
+      "size": {
+        "width": 1128,
+        "height": 2436
+      },
+      "m0": "4[1,0,3(1,2(2[2[1,1],1],2[1,2[1,1]]),1),1]",
+      "labels": null,
+      "derive": {
+        "background": null
+      },
+      "masks": null,
+      "fill": null,
+      "rankSets": null,
+      "custom": null
+    },
+    "04-first-heavy-stress-test": {
+      "meta": {
+        "title": "First heavy stress-test — 38-frame nested subdivision",
+        "source": "history/04-first-heavy-stress-test (the first deliberately heavy hand-derived layout)"
+      },
+      "size": {
+        "width": 3840,
+        "height": 2160
+      },
+      "m0": "2(2[2(2[2(1,1),2(1,1)],2(2[1,1],2[1,1])),2(2[2(1,2[1,1]),2(1,2[1,1])],2[3(1,1,1),3(1,1,1)])],2[4(1,2[1,1],2[1,1],1),2(2[3(1,1,1),3(1,1,1)],2[2(2[1,1],1),2(2[1,1],1)])])",
+      "labels": null,
+      "derive": {
+        "background": null
+      },
+      "masks": null,
+      "fill": null,
+      "rankSets": null,
+      "custom": null
+    },
+    "05-overlays-zero-frame": {
+      "meta": {
+        "title": "Overlays × passthrough + the zero-frame walk algorithm",
+        "source": "history/05-overlays-and-the-zero-frame-algorithm (overlay-on-passthrough + the early-v1 walk algorithm)"
+      },
+      "size": {
+        "width": 1080,
+        "height": 720
+      },
+      "m0": "3(0{2[1,-{2(1,1)}]},1,1)",
+      "labels": null,
+      "derive": {
+        "background": null
+      },
+      "masks": null,
+      "fill": null,
+      "rankSets": null,
+      "custom": null
+    }
+  }
+}

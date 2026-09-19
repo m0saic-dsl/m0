@@ -13,7 +13,6 @@ import type {
   M0Feasibility,
   ComplexityMetrics,
   ParseM0Result,
-  M0Label,
 } from "./types";
 
 describe("types", () => {
@@ -83,10 +82,4 @@ describe("types", () => {
     expect(f.minWidthPx).toBeGreaterThan(0);
   });
 
-  it("M0Label has text and optional color", () => {
-    const plain: M0Label = { text: "hello" };
-    const colored: M0Label = { text: "hello", color: "#ff0000" };
-    expect(plain.text).toBe("hello");
-    expect(colored.color).toBe("#ff0000");
-  });
 });

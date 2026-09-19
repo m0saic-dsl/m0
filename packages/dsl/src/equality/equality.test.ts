@@ -1,44 +1,9 @@
-import { areM0StringsCanonicalEqual, areM0StringsFrameEqual } from "./equality";
+import { toCanonicalM0String } from "../format";
+import { areM0StringsFrameEqual } from "./equality";
 
-// ── Canonical equality ───────────────────────────────────────────
-
-describe("areM0StringsCanonicalEqual", () => {
-  test("identical strings are equal", () => {
-    expect(areM0StringsCanonicalEqual("2(1,1)", "2(1,1)")).toBe(true);
-  });
-
-  test("whitespace differences are normalized away", () => {
-    expect(areM0StringsCanonicalEqual("2( 1 , 1 )", "2(1,1)")).toBe(true);
-  });
-
-  test("F/1 alias normalized", () => {
-    expect(areM0StringsCanonicalEqual("2(F,F)", "2(1,1)")).toBe(true);
-  });
-
-  test("> /0 alias normalized", () => {
-    expect(areM0StringsCanonicalEqual("3(>,1,1)", "3(0,1,1)")).toBe(true);
-  });
-
-  test("mixed aliases and whitespace", () => {
-    expect(areM0StringsCanonicalEqual("3( F , > , F )", "3(1,0,1)")).toBe(true);
-  });
-
-  test("different structures are not equal", () => {
-    expect(areM0StringsCanonicalEqual("2(1,1)", "3(1,1,1)")).toBe(false);
-  });
-
-  test("same tokens different nesting not equal", () => {
-    expect(areM0StringsCanonicalEqual("2(1,2[1,1])", "2(2[1,1],1)")).toBe(false);
-  });
-
-  test("single tile vs split not equal", () => {
-    expect(areM0StringsCanonicalEqual("1", "2(1,1)")).toBe(false);
-  });
-
-  test("empty strings are canonically equal", () => {
-    expect(areM0StringsCanonicalEqual("", "")).toBe(true);
-  });
-});
+/** Local canonical-equality check (the dsl helper was pruned as unused). */
+const canonicalEqual = (a: string, b: string) =>
+  toCanonicalM0String(a) === toCanonicalM0String(b);
 
 // ── Frame/logical equality ───────────────────────────────────────
 
@@ -101,7 +66,7 @@ describe("areM0StringsFrameEqual", () => {
     // 3(0,1,1): 2:1 ratio (frame 1 = 67%, frame 2 = 33%)
     // 5(0,0,0,1,1): 4:1 ratio (frame 1 = 80%, frame 2 = 20%)
     // At shared min resolution (5px): 3(0,1,1) gives 3+2, 5(0,0,0,1,1) gives 4+1
-    expect(areM0StringsCanonicalEqual("3(0,1,1)", "5(0,0,0,1,1)")).toBe(false);
+    expect(canonicalEqual("3(0,1,1)", "5(0,0,0,1,1)")).toBe(false);
     expect(areM0StringsFrameEqual("3(0,1,1)", "5(0,0,0,1,1)")).toBe(false);
   });
 
@@ -110,14 +75,14 @@ describe("areM0StringsFrameEqual", () => {
     // 4(0,1,0,1): frame 1 gets 2/4 = 50%, frame 2 gets 2/4 = 50%
     // 2(1,1): frame 1 gets 50%, frame 2 gets 50%
     // Same geometry! Different canonical form.
-    expect(areM0StringsCanonicalEqual("4(0,1,0,1)", "2(1,1)")).toBe(false);
+    expect(canonicalEqual("4(0,1,0,1)", "2(1,1)")).toBe(false);
     expect(areM0StringsFrameEqual("4(0,1,0,1)", "2(1,1)")).toBe(true);
   });
 
   test("canonical not equal but frame equal — row encoding variant", () => {
     // 6[0,0,1,0,0,1] = 2 frames each 50% height
     // 2[1,1] = 2 frames each 50% height
-    expect(areM0StringsCanonicalEqual("6[0,0,1,0,0,1]", "2[1,1]")).toBe(false);
+    expect(canonicalEqual("6[0,0,1,0,0,1]", "2[1,1]")).toBe(false);
     expect(areM0StringsFrameEqual("6[0,0,1,0,0,1]", "2[1,1]")).toBe(true);
   });
 

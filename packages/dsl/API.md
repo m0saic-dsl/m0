@@ -108,6 +108,8 @@ Everything in one call. Discriminated union result:
 |---|---|---|
 | `toCanonicalM0String` | `(s: string) => string` | Strip whitespace, `F`→`1`, `>`→`0`. Idempotent. |
 | `toPrettyM0String` | `(s: string) => string` | Reverse: `1`→`F`, `0`→`>`. Presentation form. |
+| `toCompactM0String` | `(s: string) => string` | Pretty + `>`/`-` runs folded to `N>`/`N-`. Transport form — **not valid grammar**. |
+| `fromCompactM0String` | `(s: string) => string` | Expand folds, return canonical. No-op on plain input. Throws on hostile run counts. |
 
 ---
 
@@ -166,7 +168,6 @@ Currently one warning code: `PRECISION_EXCEEDS_NORM`.
 | `M0Span` | `{ start: number; end: number }` — UTF-16 character span |
 | `M0Rect` | `{ x: number; y: number; width: number; height: number }` |
 | `StableKey` | `string & { __brand: "StableKey" }` — structural identity path |
-| `M0Label` | `{ text: string; color?: string }` |
 
 ### Parse output
 

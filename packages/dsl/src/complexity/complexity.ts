@@ -12,7 +12,7 @@
 
 import { toCanonicalM0String } from "../format/m0StringFormat";
 import { isValidM0String } from "../validate/m0StringValidator";
-import { computePrecisionFromString } from "../parse";
+import { computePrecisionFromString } from "../parse/m0StringParser";
 import type { ComplexityMetrics } from "../types";
 
 // ─────────────────────────────────────────────────────────────
@@ -97,11 +97,13 @@ function prepareInput(input: string): string | null {
  *
  * Canonicalizes and scans in a single pass. Does NOT validate.
  * For invalid input, returned counts are meaningless but harmless.
- * Use `getComplexityMetrics` (which validates) if you need to
+ * Validate separately (`isValidM0String`) first if you need to
  * reject invalid strings.
  *
  * This is the go-to for UI preflight — runs in microseconds
- * on any string length, never returns null, never throws.
+ * on any string length, never returns null, never throws. Returns the
+ * full ComplexityMetrics, so callers that previously reached for the
+ * per-metric getters can read `.passthroughCount` / `.nodeCount` etc. here.
  */
 export function getComplexityMetricsFast(input: string): ComplexityMetrics {
   const canonical = toCanonicalM0String(input);
@@ -138,36 +140,6 @@ export function getFrameCount(input: string): number | null {
 }
 
 /**
- * Count passthrough leaves (`0` / `>`) in a DSL string.
- *
- * This is the primary **editor / brain complexity** signal. Passthroughs
- * add structural complexity that the editor must track and visualize, but
- * they have **no render cost** — they are resolved away before compositing.
- *
- * Returns `null` if the input is not a valid m0 string.
- */
-export function getPassthroughCount(input: string): number | null {
-  const canonical = prepareInput(input);
-  if (canonical === null) return null;
-  return scanCanonical(canonical).passthroughCount;
-}
-
-/**
- * Count all structural nodes in a DSL string.
- *
- * Includes groups (split containers), frames, passthroughs, and nulls.
- * Useful as a total structural size metric.
- *
- * Returns `null` if the input is not a valid m0 string.
- */
-export function getNodeCount(input: string): number | null {
-  const canonical = prepareInput(input);
-  if (canonical === null) return null;
-  const c = scanCanonical(canonical);
-  return c.groupCount + c.frameCount + c.passthroughCount + c.nullCount;
-}
-
-/**
  * Return the precision cost of a DSL string: the maximum split factor
  * on any single axis.
  *
@@ -181,35 +153,4 @@ export function getPrecisionCost(input: string): number | null {
   const canonical = prepareInput(input);
   if (canonical === null) return null;
   return computePrecisionFromString(canonical).maxSplitAny;
-}
-
-// ─────────────────────────────────────────────────────────────
-// Public API — aggregate
-// ─────────────────────────────────────────────────────────────
-
-/**
- * Compute all complexity metrics for a DSL string in a single call.
- *
- * Performs one canonicalization, one validation, one node-count scan,
- * and one precision scan. Prefer this over calling individual getters
- * when you need multiple metrics.
- *
- * Returns `null` if the input is not a valid m0 string.
- */
-export function getComplexityMetrics(input: string): ComplexityMetrics | null {
-  const canonical = prepareInput(input);
-  if (canonical === null) return null;
-
-  const counts = scanCanonical(canonical);
-  const precision = computePrecisionFromString(canonical);
-
-  return {
-    frameCount: counts.frameCount,
-    passthroughCount: counts.passthroughCount,
-    nullCount: counts.nullCount,
-    groupCount: counts.groupCount,
-    nodeCount: counts.groupCount + counts.frameCount + counts.passthroughCount + counts.nullCount,
-    precisionCost: precision.maxSplitAny,
-    precision,
-  };
 }

@@ -1,0 +1,10 @@
+# m0
+# version: 1
+# created: 2026-06-27T00:00:00.000Z
+# size: 1080x720
+# app: hand-drawn (genesis)
+# title: Overlays × passthrough + the zero-frame walk algorithm
+# source: original hand-drawn derivation
+# note: Where overlays and passthroughs start mixing: 0{...} (overlay on a passthrough) and -{...} (overlay on a null), plus the first formalization of the walk-the-string algorithm (the early-v1 zero-frame bookkeeping, since superseded). The layout still renders to the sheet's 5-tile diagram today. See README.md.
+
+3(0{2[1,-{2(1,1)}]},1,1)

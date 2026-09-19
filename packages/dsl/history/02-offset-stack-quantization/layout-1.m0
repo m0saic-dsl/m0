@@ -1,0 +1,10 @@
+# m0
+# version: 1
+# created: 2026-06-27T00:00:00.000Z
+# size: 3840x2160
+# app: hand-drawn (genesis)
+# title: Offset-stack derivation — layout 1 (8 frames)
+# source: original hand-drawn derivation
+# note: Worked example for the offset-stack + quantization rules. 8 frames. See README.md.
+
+2(2[2(1,2[1,1]),1],2[1,3(1,1,1)])

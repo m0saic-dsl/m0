@@ -26,11 +26,9 @@ import {
   parseM0StringToRenderFrames,
   parseM0StringToLogicalFrames,
   parseM0StringToFullGraph,
-  parseM0StringToFullGraphWithTraversal,
   parseM0StringComplete,
 } from "../parse/m0StringParser";
 import {
-  getComplexityMetrics,
   getComplexityMetricsFast,
 } from "../complexity";
 
@@ -161,8 +159,7 @@ describe("base M fixture integrity", () => {
   });
 
   it("complexity metrics match sidecar", () => {
-    const m = getComplexityMetrics(BASE_DSL)!;
-    expect(m).not.toBeNull();
+    const m = getComplexityMetricsFast(BASE_DSL);
     expect(m.frameCount).toBe(BASE.frameCount);
     expect(m.passthroughCount).toBe(BASE.passthroughCount);
     expect(m.nullCount).toBe(BASE.nullCount);
@@ -180,9 +177,12 @@ describe("base M fixture integrity", () => {
     const editor = parseM0StringToFullGraph(BASE_DSL, 1920, 1080);
     expect(editor.length).toBe(BASE.editorFrameCount);
 
-    const fgwt = parseM0StringToFullGraphWithTraversal(BASE_DSL, 1920, 1080);
-    expect(fgwt.editorFrames.length).toBe(BASE.editorFrameCount);
-    expect(fgwt.traversal.length).toBe(BASE.traversalEventCount);
+    // Traversal stream via the trace option (the convenience wrapper was pruned).
+    const traced = parseM0StringComplete(BASE_DSL, 1920, 1080, { trace: true });
+    expect(traced.ok).toBe(true);
+    if (!traced.ok) return;
+    expect(traced.ir.editorFrames.length).toBe(BASE.editorFrameCount);
+    expect(traced.ir.traversal?.length).toBe(BASE.traversalEventCount);
   });
 });
 
@@ -202,8 +202,7 @@ describe("tiled variant correctness", () => {
       });
 
       it("complexity metrics scale correctly", () => {
-        const m = getComplexityMetrics(v.dsl)!;
-        expect(m).not.toBeNull();
+        const m = getComplexityMetricsFast(v.dsl);
         expect(m.frameCount).toBe(expected.frameCount);
         expect(m.passthroughCount).toBe(expected.passthroughCount);
         expect(m.nullCount).toBe(expected.nullCount);
@@ -303,7 +302,7 @@ describe("M fixture performance (timed)", () => {
         log("fullGraph", fullGraphMs);
 
         const fullGraphTraversalMs = benchmark(() =>
-          parseM0StringToFullGraphWithTraversal(v.dsl, w, h),
+          parseM0StringComplete(v.dsl, w, h, { trace: true }),
         );
         log("fullGraph+trav", fullGraphTraversalMs);
 

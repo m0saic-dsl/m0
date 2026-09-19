@@ -1,9 +1,7 @@
 import {
   getFrameCount,
-  getPassthroughCount,
-  getNodeCount,
   getPrecisionCost,
-  getComplexityMetrics,
+  getComplexityMetricsFast,
 } from "./complexity";
 
 // ─────────────────────────────────────────────────────────────
@@ -77,65 +75,69 @@ describe("getFrameCount", () => {
 });
 
 // ─────────────────────────────────────────────────────────────
-// getPassthroughCount
+// passthrough count (via getComplexityMetricsFast)
 // ─────────────────────────────────────────────────────────────
 
-describe("getPassthroughCount", () => {
+describe("getComplexityMetricsFast.passthroughCount", () => {
+  const pass = (s: string) => getComplexityMetricsFast(s).passthroughCount;
+
   it("bare frame — no passthroughs", () => {
-    expect(getPassthroughCount(SIMPLE)).toBe(0);
+    expect(pass(SIMPLE)).toBe(0);
   });
 
   it("high frame count — no passthroughs", () => {
-    expect(getPassthroughCount(HIGH_FRAMES)).toBe(0);
+    expect(pass(HIGH_FRAMES)).toBe(0);
   });
 
   it("high passthrough layout", () => {
-    expect(getPassthroughCount(HIGH_PASSTHROUGH)).toBe(3);
+    expect(pass(HIGH_PASSTHROUGH)).toBe(3);
   });
 
   it("nested layout with one passthrough", () => {
-    expect(getPassthroughCount(NESTED)).toBe(1);
+    expect(pass(NESTED)).toBe(1);
   });
 
   it("handles > alias", () => {
-    expect(getPassthroughCount("3(>,>,1)")).toBe(2);
+    expect(pass("3(>,>,1)")).toBe(2);
   });
 
   it("mixed layout", () => {
-    expect(getPassthroughCount(MIXED)).toBe(1);
+    expect(pass(MIXED)).toBe(1);
   });
 });
 
 // ─────────────────────────────────────────────────────────────
-// getNodeCount
+// node count (via getComplexityMetricsFast)
 // ─────────────────────────────────────────────────────────────
 
-describe("getNodeCount", () => {
+describe("getComplexityMetricsFast.nodeCount", () => {
+  const nodes = (s: string) => getComplexityMetricsFast(s).nodeCount;
+
   it("bare frame — 1 node", () => {
-    expect(getNodeCount(SIMPLE)).toBe(1);
+    expect(nodes(SIMPLE)).toBe(1);
   });
 
   it("high frame count — 1 group + 8 frames = 9", () => {
-    expect(getNodeCount(HIGH_FRAMES)).toBe(9);
+    expect(nodes(HIGH_FRAMES)).toBe(9);
   });
 
   it("high passthrough — 1 group + 3 passthroughs + 1 frame = 5", () => {
-    expect(getNodeCount(HIGH_PASSTHROUGH)).toBe(5);
+    expect(nodes(HIGH_PASSTHROUGH)).toBe(5);
   });
 
   it("nested — 3 groups + 4 frames + 1 passthrough = 8", () => {
     // 2(...), 3[...], 2(...) = 3 groups; 3+1 frames; 1 passthrough
-    expect(getNodeCount(NESTED)).toBe(8);
+    expect(nodes(NESTED)).toBe(8);
   });
 
   it("overlay — 2 groups + 4 frames = 6", () => {
     // outer 2(...) + overlay 2(...) = 2 groups; 1+2+1 = 4 frames
-    expect(getNodeCount(WITH_OVERLAY)).toBe(6);
+    expect(nodes(WITH_OVERLAY)).toBe(6);
   });
 
   it("mixed — 2 groups + 2 frames + 1 null + 1 passthrough = 6", () => {
     // 3(...), 2[...] = 2 groups; 1+1 frames; 1 null; 1 passthrough
-    expect(getNodeCount(MIXED)).toBe(6);
+    expect(nodes(MIXED)).toBe(6);
   });
 });
 
@@ -172,7 +174,7 @@ describe("getPrecisionCost", () => {
 
 describe("getComplexityMetrics", () => {
   it("returns all metrics for a simple mosaic", () => {
-    const m = getComplexityMetrics(SIMPLE)!;
+    const m = getComplexityMetricsFast(SIMPLE)!;
     expect(m.frameCount).toBe(1);
     expect(m.passthroughCount).toBe(0);
     expect(m.nullCount).toBe(0);
@@ -182,7 +184,7 @@ describe("getComplexityMetrics", () => {
   });
 
   it("returns all metrics for a nested mosaic", () => {
-    const m = getComplexityMetrics(NESTED)!;
+    const m = getComplexityMetricsFast(NESTED)!;
     expect(m.frameCount).toBe(4);
     expect(m.passthroughCount).toBe(1);
     expect(m.nullCount).toBe(0);
@@ -192,7 +194,7 @@ describe("getComplexityMetrics", () => {
   });
 
   it("returns all metrics for a mixed mosaic", () => {
-    const m = getComplexityMetrics(MIXED)!;
+    const m = getComplexityMetricsFast(MIXED)!;
     expect(m.frameCount).toBe(2);
     expect(m.passthroughCount).toBe(1);
     expect(m.nullCount).toBe(1);
@@ -201,18 +203,18 @@ describe("getComplexityMetrics", () => {
   });
 
   it("nodeCount equals sum of parts", () => {
-    const m = getComplexityMetrics(WITH_OVERLAY)!;
+    const m = getComplexityMetricsFast(WITH_OVERLAY)!;
     expect(m.nodeCount).toBe(m.groupCount + m.frameCount + m.passthroughCount + m.nullCount);
   });
 
   it("precision field matches getPrecisionCost", () => {
-    const m = getComplexityMetrics(PRECISION_HEAVY)!;
+    const m = getComplexityMetricsFast(PRECISION_HEAVY)!;
     expect(m.precisionCost).toBe(getPrecisionCost(PRECISION_HEAVY));
     expect(m.precision.maxSplitAny).toBe(m.precisionCost);
   });
 
   it("includes full precision breakdown", () => {
-    const m = getComplexityMetrics("2(3[1,1,1],1)")!;
+    const m = getComplexityMetricsFast("2(3[1,1,1],1)")!;
     expect(m.precision.maxSplitX).toBe(2);
     expect(m.precision.maxSplitY).toBe(3);
     expect(m.precision.maxSplitAny).toBe(3);
@@ -226,9 +228,9 @@ describe("getComplexityMetrics", () => {
 describe("editorial complexity vs render cost", () => {
   it("two mosaics with equal frame count but different editor complexity", () => {
     // Layout A: 3 frames, no passthroughs — simple to reason about
-    const a = getComplexityMetrics("3(1,1,1)")!;
+    const a = getComplexityMetricsFast("3(1,1,1)")!;
     // Layout B: 3 frames, 2 passthroughs — space donation makes editing harder
-    const b = getComplexityMetrics("5(0,1,0,1,1)")!;
+    const b = getComplexityMetricsFast("5(0,1,0,1,1)")!;
 
     // Same render cost
     expect(a.frameCount).toBe(3);
@@ -256,25 +258,15 @@ describe("invalid DSL input", () => {
     { label: "double comma", input: "2(1,,1)" },
   ];
 
+  // The validating getters (getFrameCount, getPrecisionCost) return null on
+  // invalid input. getComplexityMetricsFast does NOT validate by design.
   for (const { label, input } of INVALID_CASES) {
     it(`getFrameCount returns null for ${label}`, () => {
       expect(getFrameCount(input)).toBeNull();
     });
 
-    it(`getPassthroughCount returns null for ${label}`, () => {
-      expect(getPassthroughCount(input)).toBeNull();
-    });
-
-    it(`getNodeCount returns null for ${label}`, () => {
-      expect(getNodeCount(input)).toBeNull();
-    });
-
     it(`getPrecisionCost returns null for ${label}`, () => {
       expect(getPrecisionCost(input)).toBeNull();
-    });
-
-    it(`getComplexityMetrics returns null for ${label}`, () => {
-      expect(getComplexityMetrics(input)).toBeNull();
     });
   }
 });

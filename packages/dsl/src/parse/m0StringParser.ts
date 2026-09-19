@@ -17,7 +17,6 @@
 
 import type {
   EditorFrame,
-  FullGraphWithTraversal,
   LogicalFrame,
   M0Axis,
   M0Precision,
@@ -35,8 +34,8 @@ import type {
   PassthroughOwner,
   StableKey,
 } from "../types";
-import { makeValidationError } from "../errors";
-import { makeWarning } from "../warnings";
+import { makeValidationError } from "../errors/errors";
+import { makeWarning } from "../warnings/warnings";
 import { isValidM0String, validateM0String } from "../validate/m0StringValidator";
 import { toCanonicalM0String } from "../format/m0StringFormat";
 import { sortDeferredOverlays, type DeferredOverlayItem } from "./sortDeferredOverlays";
@@ -69,6 +68,15 @@ interface EngineFrame {
   isLogicalOwner: boolean;
   /** Split direction for group frames. true = row ([] splits height), false = col (() splits width). */
   row?: boolean;
+  /**
+   * Source byte span of this node's own expression — leaf token `[pos, pos+1]`
+   * or container `[firstDigit, afterCloseBracket]`, EXCLUDING any trailing
+   * `{…}` overlay. Captured during the parse walk (the cursor already knows
+   * every position), so spans cost nothing beyond the parse we already do —
+   * no separate string scan. `undefined` for implicit (omitted) null slots,
+   * which carry no span (matching `computeNodeSpansByPath`).
+   */
+  span?: M0Span;
 }
 
 /**
@@ -675,10 +683,16 @@ class EngineM0Parser {
     for (;;) {
       // Process current level's tokens
       while (idx < m) {
+        // Token start in source coords (the cursor already points here) — used
+        // to record each frame's expression span without a second string scan.
+        const tokStart = this.pos;
         let t = this.nextToken(end);
 
         if (t === ",") continue;
-        if (t.length === 0) t = "-";
+        // An empty token is an implicit (omitted) null slot — it has no source
+        // text, so it carries no span (matching computeNodeSpansByPath).
+        const implicitNull = t.length === 0;
+        if (implicitNull) t = "-";
 
         const seg = sizes[idx] ?? 0;
 
@@ -709,6 +723,7 @@ class EngineM0Parser {
             overlayDepth,
             parentFrameId: parentId,
             isLogicalOwner: false,
+            span: { start: tokStart, end: tokStart + 1 },
           };
           allFrames.push(f0);
           pendingZeroIds.push(f0.id);
@@ -808,6 +823,7 @@ class EngineM0Parser {
             overlayDepth,
             parentFrameId: parentId,
             isLogicalOwner,
+            span: implicitNull ? undefined : { start: tokStart, end: tokStart + 1 },
           };
           allFrames.push(f);
 
@@ -882,6 +898,7 @@ class EngineM0Parser {
             overlayDepth,
             parentFrameId: parentId,
             isLogicalOwner: false,
+            span: { start: tokStart, end: tokStart + 1 },
           };
           allFrames.push(f);
 
@@ -951,7 +968,9 @@ class EngineM0Parser {
           const closePos = this.findClose(enclosureOpen, end);
           const innerEnd = closePos;
 
-          // Create GROUP frame
+          // Create GROUP frame. Its span covers the whole container expression
+          // `N(…)` / `N[…]` — from the first digit to just past the close
+          // bracket — excluding any trailing `{…}` overlay (handled separately).
           const group: EngineFrame = {
             id: this.idCounter++,
             width: rectW,
@@ -967,6 +986,7 @@ class EngineM0Parser {
             parentFrameId: parentId,
             isLogicalOwner: false,
             row: r,
+            span: { start: tokStart, end: closePos + 1 },
           };
           allFrames.push(group);
 
@@ -1211,6 +1231,11 @@ export function buildIdentity(args: {
  * Compute character spans for **every** node in a canonical m0 string,
  * keyed by `debugPath` — the same path strings used by `buildIdentityMap`.
  *
+ * **No longer on the production path.** Spans are now captured for free during
+ * the engine parse walk and read off each `EngineFrame.span`. This second-scan
+ * implementation is retained only as the byte-identical test oracle (see
+ * `__identitySpansForTest`) that guards the engine-captured spans.
+ *
  * Spans are keyed by debugPath rather than indexed by leaf order because
  * the overlay visitation order in `buildIdentityMap` (which separates base
  * children from overlay children) differs from the left-to-right string
@@ -1419,10 +1444,33 @@ function axisFromRow(row?: boolean): M0Axis {
  * - `meta.depth` always reflects structural depth (`f.structDepth`), even for
  *   overlay frames. Overlay depth is tracked on `EditorFrame.depth`.
  */
+/**
+ * Span source for identity construction:
+ * - omitted → no spans attached (renderOnly default).
+ * - `{ fromFrame: true }` → read each frame's engine-captured `span` (production
+ *   when spans are needed — free, no string scan).
+ * - `{ byPath }` → attach from a `computeNodeSpansByPath` map (the legacy
+ *   path-scan; retained only as the test oracle that proves `fromFrame` is
+ *   byte-identical).
+ */
+type SpanSource =
+  | { fromFrame: true; byPath?: undefined }
+  | { fromFrame?: undefined; byPath: ReadonlyMap<string, M0Span> };
+
 function buildIdentityMap(
   allFrames: EngineFrame[],
   overlayIds: ReadonlySet<number>,
-  spanByPath?: ReadonlyMap<string, M0Span>,
+  spanSource?: SpanSource,
+  /**
+   * Render-only prune. When true, only RENDERED frames get an identity stored,
+   * and subtrees that contain no rendered frame are never visited. Keys stay
+   * byte-identical: every rendered frame's ancestor chain is still walked (so
+   * childIndex/parent keys are unchanged) — we only skip the dead spacer
+   * subtrees whose identities renderOnly would never read. A node's own
+   * childIndex counts ALL base siblings (rendered or not), so indices are
+   * unaffected by pruning.
+   */
+  prune?: boolean,
 ): Map<number, M0NodeIdentity> {
   const map = new Map<number, M0NodeIdentity>();
 
@@ -1442,6 +1490,23 @@ function buildIdentityMap(
   for (const children of childrenOf.values()) {
     children.sort((a, b) => a.id - b.id);
   }
+
+  // Prune precompute: mark every node whose subtree contains a rendered frame
+  // (ancestors-or-self of some rendered frame). One bottom-up pass — frames are
+  // in ascending-id (creation) order and a parent's id always precedes its
+  // descendants', so iterating descending id processes children before parents.
+  let hasRendered: Set<number> | null = null;
+  if (prune) {
+    hasRendered = new Set<number>();
+    for (let i = allFrames.length - 1; i >= 0; i--) {
+      const f = allFrames[i];
+      if (!f.nullRender || hasRendered.has(f.id)) {
+        hasRendered.add(f.id);
+        if (f.parentFrameId !== -1) hasRendered.add(f.parentFrameId);
+      }
+    }
+  }
+  const keep = (f: EngineFrame) => !prune || hasRendered!.has(f.id);
 
   // Iterative with explicit stack to avoid V8 call-stack overflow
   // on deeply nested but valid DSL inputs (nesting depth >2000).
@@ -1483,16 +1548,24 @@ function buildIdentityMap(
         childIndex,
       });
 
-      // Assign span from path-based map (debugPath is transient, not stored on identity)
-      if (spanByPath) {
-        id.span = spanByPath.get(debugPath) ?? null;
+      // Assign span — from the frame (production, free) or the path map (oracle).
+      // debugPath is transient (only needed for the path-map oracle), not stored.
+      if (spanSource?.fromFrame) {
+        id.span = f.span ?? null;
+      } else if (spanSource?.byPath) {
+        id.span = spanSource.byPath.get(debugPath) ?? null;
       }
 
-      map.set(f.id, id);
+      // In prune mode store only rendered frames; ancestors still need their id
+      // computed (above) to key descendants, but renderOnly never reads them.
+      if (!prune || !f.nullRender) map.set(f.id, id);
 
-      // Push overlay children in reverse order (processed after base children)
+      // Push overlay children in reverse order (processed after base children).
+      // childIndex/overlay-k count ALL siblings; prune only skips the PUSH of
+      // dead subtrees, so kept children keep their original indices.
       for (let k = overlayChildren.length - 1; k >= 0; k--) {
         const ov = overlayChildren[k];
+        if (!keep(ov)) continue;
         const ovKey = `${id.stableKey}/ov${ov.overlayDepth}c${k}` as StableKey;
         identityStack.push({
           type: "overlay",
@@ -1505,6 +1578,7 @@ function buildIdentityMap(
 
       // Push base children in reverse order (processed first in correct order)
       for (let i = baseChildren.length - 1; i >= 0; i--) {
+        if (!keep(baseChildren[i])) continue;
         identityStack.push({
           type: "structural",
           f: baseChildren[i],
@@ -1545,15 +1619,18 @@ function buildIdentityMap(
         identity = { ...base, kind };
       }
 
-      if (spanByPath) {
-        identity.span = spanByPath.get(debugPath) ?? null;
+      if (spanSource?.fromFrame) {
+        identity.span = f.span ?? null;
+      } else if (spanSource?.byPath) {
+        identity.span = spanSource.byPath.get(debugPath) ?? null;
       }
 
-      map.set(f.id, identity);
+      if (!prune || !f.nullRender) map.set(f.id, identity);
 
       // Push nested overlays in reverse order (processed after base children)
       for (let k = nestedOverlays.length - 1; k >= 0; k--) {
         const ov = nestedOverlays[k];
+        if (!keep(ov)) continue;
         const ovKey = `${stableKey}/ov${ov.overlayDepth}c${k}` as StableKey;
         identityStack.push({
           type: "overlay",
@@ -1567,6 +1644,7 @@ function buildIdentityMap(
       // Push base children in reverse order (processed first in correct order)
       for (let i = baseChildren.length - 1; i >= 0; i--) {
         const child = baseChildren[i];
+        if (!keep(child)) continue;
         const childKind = classifyKind(child, (childrenOf.get(child.id) ?? []).some(c2 => c2.overlayDepth <= child.overlayDepth), false);
         const childAxis: M0Axis | undefined =
           (childKind === "root" || childKind === "group") ? axisFromRow(child.row) : undefined;
@@ -1583,6 +1661,35 @@ function buildIdentityMap(
   }
 
   return map;
+}
+
+/**
+ * @internal — test-only. Runs the parse pipeline and returns each frame's
+ * attached span keyed by engine frame id, sourced either from the frame's
+ * parse-captured span (`"frame"`, the production path) or from the legacy
+ * `computeNodeSpansByPath` scan (`"path"`, the oracle). The equivalence test
+ * runs both and asserts byte-identical spans for every frame. Returns `null`
+ * for invalid / infeasible input.
+ */
+export function __identitySpansForTest(
+  input: string,
+  width: number,
+  height: number,
+  source: "frame" | "path",
+): Map<number, M0Span | null> | null {
+  const s = toCanonicalM0String(input);
+  if (validateM0String(s).ok === false) return null;
+  const { frames, overlayFrameIds } = EngineM0Parser.parse(s, width, height);
+  const valid = frames.filter((f) => f.width > 0 && f.height > 0);
+  if (valid.length !== frames.length || valid.length === 0) return null;
+  const idMap = buildIdentityMap(
+    valid,
+    overlayFrameIds,
+    source === "frame" ? { fromFrame: true } : { byPath: computeNodeSpansByPath(s) },
+  );
+  const out = new Map<number, M0Span | null>();
+  for (const f of valid) out.set(f.id, idMap.get(f.id)?.span ?? null);
+  return out;
 }
 
 /**
@@ -1750,11 +1857,14 @@ export function parseM0StringComplete(
     };
   }
 
-  // Build structural identity map (DFS assigns stableKeys to all frames)
-  // overlayIds already destructured from parse result above
-  // Always build the full structural graph. Callers that only need
-  // geometry should use parseM0StringToRenderFrames instead.
-  const includeDebugPayload = true;
+  // Materialization mode. "full" (default) builds the complete structural
+  // graph (all nodes + spans + passthrough owners). "renderOnly" builds only
+  // rendered frames, skipping the all-node editorFrames map and the
+  // passthrough-owner DFS — a large win on passthrough/null-dense layouts where
+  // total nodes ≫ rendered frames. Callers needing pure geometry (no real
+  // stableKeys) should use parseM0StringToRenderFrames instead.
+  const materialize = opts?.materialize ?? "full";
+  const includeDebugPayload = materialize === "full";
 
   // Rendered frames sorted by stackOrder (paint order)
   const rendered = valid.filter((f) => !f.nullRender);
@@ -1769,27 +1879,18 @@ export function parseM0StringComplete(
     logicalIndexByFrameId.set(logicalSorted[i].id, i);
   }
 
-  // Identity map — only built when the full graph is requested.
-  // For the fast path (renderFrames only), build lightweight placeholders.
-  let identityMap: Map<number, M0NodeIdentity>;
-  if (includeDebugPayload) {
-    const spanByPath = computeNodeSpansByPath(s);
-    identityMap = buildIdentityMap(valid, overlayIds, spanByPath);
-  } else {
-    // Lightweight: minimal identity for rendered frames only.
-    // No stableKey hierarchy, no spans — just enough for the canvas.
-    identityMap = new Map();
-    for (let i = 0; i < logicalSorted.length; i++) {
-      const f = logicalSorted[i];
-      identityMap.set(f.id, {
-        kind: "frame",
-        stableKey: `f${i}` as StableKey,
-        parentStableKey: null,
-        structuralDepth: f.structDepth,
-        span: null,
-      });
-    }
-  }
+  // Identity map — REAL stableKeys in every mode (renderOnly keeps identity
+  // intact so persisted refs / edit-by-key stay valid). Spans come straight off
+  // each frame's parse-captured span (no separate string scan) and are attached
+  // in both modes — free, and the editing splice anchor every surface may need.
+  // Spans are never part of the stableKey, so this leaves keys byte-identical.
+  //
+  // renderOnly prunes the identity walk to rendered-frame ancestor paths only —
+  // it never builds keys for the spacer subtrees it wouldn't return. Keys stay
+  // byte-identical; on passthrough/null-dense layouts (N ≫ R) this is the bulk
+  // of the parse cost saved.
+  const identityMap: Map<number, M0NodeIdentity> =
+    buildIdentityMap(valid, overlayIds, { fromFrame: true }, !includeDebugPayload);
 
   // Build RenderFrame[] (paint order)
   const renderFrames: DslRenderFrame[] = paintSorted.map((f, i) => ({
@@ -1898,6 +1999,27 @@ export function parseM0StringComplete(
     if (opts?.trace) {
       traversal = buildTraversal(valid, identityMap);
     }
+  } else {
+    // renderOnly: materialize EditorFrames for rendered frames only — each
+    // carries its real stableKey and span. No all-node map, no passthrough-owner
+    // DFS, no traversal. Rendered frames are never passthrough/null and never
+    // own passthroughs, so the omitted work would have produced nothing for them.
+    editorFrames = rendered.map((f) => {
+      const identity = identityMap.get(f.id)!;
+      return {
+        x: f.x, y: f.y, width: f.width, height: f.height,
+        overlayDepth: f.overlayDepth,
+        nullFrame: f.nullRender,
+        passthroughFrame: f.zeroFrame,
+        isLogicalOwner: f.isLogicalOwner || undefined,
+        kind: identity.kind,
+        axis: (identity.kind === "root" || identity.kind === "group") ? identity.axis : undefined,
+        logicalIndex: f.logicalOrder >= 0 ? f.logicalOrder : undefined,
+        stackOrder: f.stackOrder >= 0 ? f.stackOrder : undefined,
+        meta: identity,
+        passthroughOwner: undefined,
+      };
+    });
   }
 
   const ir: M0IR = {
@@ -1932,7 +2054,9 @@ export function parseM0StringToLogicalFrames(
   width: number,
   height: number,
 ): LogicalFrame[] {
-  const result = parseM0StringComplete(s, width, height);
+  // renderOnly: real stableKeys for rendered frames without paying for the
+  // full structural graph (spans, passthrough owners, all-node materialization).
+  const result = parseM0StringComplete(s, width, height, { materialize: "renderOnly" });
   if (!result.ok) return [];
   return result.ir.renderFrames
     .slice()
@@ -1968,38 +2092,3 @@ export function parseM0StringToFullGraph(
   return result.ir.editorFrames ?? [];
 }
 
-/**
- * Parse a m0 string into the full structural graph + DFS traversal events.
- *
- * Use this when you need to replay the parse as a stream of enter/emitLeaf/exit
- * events (e.g., for custom renderers or analysis that walks the tree).
- *
- * @returns `FullGraphWithTraversal` — `{ editorFrames: EditorFrame[],
- *          traversal: M0TraversalEvent[] }`.
- *          Returns `{ editorFrames: [], traversal: [] }` if the input is invalid.
- *
- * Heaviest parse path. Use `parseM0StringToFullGraph` if you don't need
- * the traversal stream.
- */
-export function parseM0StringToFullGraphWithTraversal(
-  s: string,
-  width: number,
-  height: number,
-): FullGraphWithTraversal {
-  const result = parseM0StringComplete(s, width, height, { trace: true });
-  if (!result.ok) return { editorFrames: [], traversal: [] };
-  return {
-    editorFrames: result.ir.editorFrames ?? [],
-    traversal: result.ir.traversal ?? [],
-  };
-}
-
-export function assertOk(
-  result: ParseM0Result
-): asserts result is Extract<ParseM0Result, { ok: true }> {
-  if (result.ok) return;
-  if ("error" in result) {
-    throw new Error(result.error.message);
-  }
-  throw new Error("Unexpected parse result state");
-}

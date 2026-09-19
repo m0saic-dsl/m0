@@ -138,57 +138,42 @@ describe("NO_SOURCES", () => {
   });
 });
 
-describe("ZERO_SOURCE_OVERLAY", () => {
+describe("overlay bodies: 'must have at least one node, doesn't have to paint'", () => {
+  // The per-overlay rules are: (a) the body must contribute at least
+  // ONE node to the graph (no `{}`); (b) the body's root can't be a
+  // bare `0` (passthrough with no sibling to donate to). Everything
+  // else — null leaves, all-null splits, splits containing passthroughs
+  // with siblings, and any composition that fails to paint — is now
+  // valid. They express structural anchors (logical owners) that carry
+  // stableKey + label without contributing paint. The whole-string
+  // `NO_SOURCES` check still guards that the OUTER layout has at least
+  // one source tile at the canvas root.
   test.each([
-    { input: "1{1}", label: "simple overlay with source" },
-    { input: "1{2(-,1)}", label: "overlay body has a source" },
-    { input: "1{2[1,1]{1}}", label: "nested overlay has a source" },
-  ])("accepts valid overlay: $label ($input)", ({ input }) => {
+    { input: "1{1}", label: "overlay with paint" },
+    { input: "1{2(-,1)}", label: "overlay with mixed body" },
+    { input: "1{2[1,1]{1}}", label: "nested overlay with paint" },
+    { input: "1{-}", label: "bare null — one node, no paint" },
+    { input: "1{2(-,-)}", label: "all-null split — has nodes" },
+    { input: "1{2(0,-)}", label: "passthrough with sibling to donate to" },
+    { input: "1{-{-}}", label: "nested logical owner with null inside" },
+    { input: "1{-{2(0,-)}}", label: "nested logical owner with split inside" },
+    { input: "1{2[1,1]{2(-,-)}}", label: "nested zero-source overlay" },
+    { input: "1{1{2(-,-)}}", label: "deeply nested zero-source overlay" },
+    { input: "2(-{F},-{1})", label: "sibling logical owners" },
+  ])("accepts: $label ($input)", ({ input }) => {
     const res = validateM0String(input);
     expect(res.ok).toBe(true);
   });
 
-  test("rejects overlay body with no source — 1{2(-,-)}", () => {
-    const res = validateM0String("1{2(-,-)}");
-    const err = expectInvalidResult(res);
-    expect(err.code).toBe("ZERO_SOURCE_OVERLAY");
-    expect(err.position).toBe(1);
-  });
-
-  test("rejects nested zero-source overlay — 1{2[1,1]{2(-,-)}}", () => {
-    const res = validateM0String("1{2[1,1]{2(-,-)}}");
-    const err = expectInvalidResult(res);
-    expect(err.code).toBe("ZERO_SOURCE_OVERLAY");
-    // Position points at the inner overlay's '{'
-    expect(err.position).toBe(8);
-  });
-
-  test("rejects deeply nested zero-source overlay — 1{1{2(-,-)}}", () => {
-    const res = validateM0String("1{1{2(-,-)}}");
-    const err = expectInvalidResult(res);
-    expect(err.code).toBe("ZERO_SOURCE_OVERLAY");
-    // Position points at the inner overlay's '{'
-    expect(err.position).toBe(3);
-  });
-});
-
-describe("inner error code threading through overlay body", () => {
-  test("1{0} → rejected with INVALID_EMPTY (not TOKEN_COUNT)", () => {
-    const res = validateM0String("1{0}");
+  test.each([
+    { input: "1{}", label: "empty body — no nodes" },
+    { input: "1{0}", label: "bare passthrough with no sibling" },
+    { input: "1{-{}}", label: "nested empty body (recursive check)" },
+    { input: "1{-{-{}}}", label: "deeply nested empty body" },
+  ])("rejects: $label ($input)", ({ input }) => {
+    const res = validateM0String(input);
     const err = expectInvalidResult(res);
     expect(err.code).toBe("INVALID_EMPTY");
-  });
-
-  test("1{-} → rejected with INVALID_EMPTY (not TOKEN_COUNT)", () => {
-    const res = validateM0String("1{-}");
-    const err = expectInvalidResult(res);
-    expect(err.code).toBe("INVALID_EMPTY");
-  });
-
-  test("1{2(-,-)} → rejected with ZERO_SOURCE_OVERLAY (not TOKEN_COUNT)", () => {
-    const res = validateM0String("1{2(-,-)}");
-    const err = expectInvalidResult(res);
-    expect(err.code).toBe("ZERO_SOURCE_OVERLAY");
   });
 });
 

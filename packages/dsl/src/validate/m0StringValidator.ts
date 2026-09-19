@@ -157,7 +157,15 @@ function checkValidationRules(prev: ValidationType, cur: ValidationType): boolea
   }
 
   if (prev === "OBJECTOPEN") {
-    if (cur !== "COMMA" && cur !== "PRIMITIVE" && cur !== "NUMBER") {
+    // `OBJECTCLOSE` directly after `OBJECTOPEN` (empty `{}` body) is
+    // syntactically valid here. It's caught at the semantic per-overlay
+    // INVALID_EMPTY check below with a more informative error message.
+    if (
+      cur !== "COMMA" &&
+      cur !== "PRIMITIVE" &&
+      cur !== "NUMBER" &&
+      cur !== "OBJECTCLOSE"
+    ) {
       return false;
     }
   }
@@ -414,7 +422,36 @@ function tokenCheckIndexed(
     while (i < end && isNumericChar(s.charAt(i))) i++;
     if (i === start) {
       const ch = s.charAt(start);
-      if (ch === "1" || ch === "0" || ch === "-") continue; // valid primitive
+      if (ch === "1" || ch === "0" || ch === "-") {
+        // Bare primitive — but check for an attached overlay
+        // (`1{…}`, `-{…}`, `0{…}` are all valid primitive-with-overlay
+        // shapes). Without this lookahead the overlay body never gets
+        // validated, so `-{}` and `-{0}` would slip through.
+        if (start + 1 < end && s.charAt(start + 1) === "{") {
+          const overlayOpen = start + 1;
+          const overlayClose = idx.matchingClose[overlayOpen];
+          if (overlayClose < 0) return new ValidationResult(false, overlayOpen, false);
+          if (overlayClose + 1 < end) return new ValidationResult(false, overlayClose + 1, false);
+
+          const ovInnerLen = overlayClose - (overlayOpen + 1);
+          if (ovInnerLen === 0) {
+            return new ValidationResult(false, overlayOpen + 1, true, {
+              ok: false, error: { code: "INVALID_EMPTY", kind: "SYNTAX",
+                message: "An empty overlay body has no nodes to anchor — use `{-}` for a null logical-owner marker.",
+                position: overlayOpen + 1, span: { start: overlayOpen, end: overlayClose + 1 } } });
+          }
+          if (ovInnerLen === 1 && s.charAt(overlayOpen + 1) === "0") {
+            return new ValidationResult(false, overlayOpen + 1, true, {
+              ok: false, error: { code: "INVALID_EMPTY", kind: "SYNTAX",
+                message: "A bare passthrough tile ('0') in an overlay body has nothing to donate space to — use `{-}` for a null marker.",
+                position: overlayOpen + 1, span: { start: overlayOpen + 1, end: overlayClose } } });
+          }
+          if (overlayOpen + 1 < overlayClose) {
+            pending.push({ start: overlayOpen + 1, end: overlayClose });
+          }
+        }
+        continue; // valid primitive (or primitive + already-validated overlay)
+      }
       return new ValidationResult(false, start, true);
     }
 
@@ -439,28 +476,28 @@ function tokenCheckIndexed(
 
       if (closePos + 1 < end) return new ValidationResult(false, closePos + 1, false);
 
-      // Quick-reject bare overlay bodies that validateM0StringSyntaxOnly
-      // would have caught (empty, bare 0, bare -)
+      // Reject bodies that contribute zero nodes to the graph:
+      //   - `{}`        empty (no node at all)
+      //   - `{0}`       bare passthrough with no sibling to donate to
+      // `{-}` and other null-or-passthrough-bearing compositions stay
+      // valid — they contribute at least one node (the null) which can
+      // carry a stableKey + label as a logical-owner anchor. The
+      // ZERO_SOURCE_OVERLAY rule above was dropped — overlay bodies no
+      // longer have to paint; they only have to exist as nodes.
       const innerLen = closePos - (i + 1);
       if (innerLen === 0) {
         return new ValidationResult(false, i + 1, true, {
           ok: false, error: { code: "INVALID_EMPTY", kind: "SYNTAX",
-            message: "An empty m0 string is not a valid renderable layout.",
-            position: 0, span: { start: 0, end: 0 } } });
+            message: "An empty overlay body has no nodes to anchor — use `{-}` for a null logical-owner marker.",
+            position: i + 1, span: { start: i, end: closePos + 1 } } });
       }
-      if (innerLen === 1) {
-        const innerCh = s.charAt(i + 1);
-        if (innerCh === "0" || innerCh === "-") {
-          const msg = innerCh === "0"
-            ? "A bare passthrough tile ('0') produces no renderable output."
-            : "A bare null tile ('-') produces no renderable output.";
-          return new ValidationResult(false, i + 1, true, {
-            ok: false, error: { code: "INVALID_EMPTY", kind: "SYNTAX",
-              message: msg, position: 0, span: { start: 0, end: 1 } } });
-        }
+      if (innerLen === 1 && s.charAt(i + 1) === "0") {
+        return new ValidationResult(false, i + 1, true, {
+          ok: false, error: { code: "INVALID_EMPTY", kind: "SYNTAX",
+            message: "A bare passthrough tile ('0') in an overlay body has nothing to donate space to — use `{-}` for a null marker.",
+            position: i + 1, span: { start: i + 1, end: closePos } } });
       }
 
-      // Push overlay body range for validation on the same stack
       if (i + 1 < closePos) {
         pending.push({ start: i + 1, end: closePos });
       }
@@ -503,23 +540,23 @@ function tokenCheckIndexed(
       const overlayClose = idx.matchingClose[overlayOpen];
       if (overlayClose < 0) return new ValidationResult(false, overlayOpen, false);
 
+      // Classifier-attached overlay body: same targeted rejects as the
+      // standalone-overlay branch above. `{}` (empty) and `{0}` (bare
+      // passthrough with no sibling to donate to) stay rejected; every
+      // other shape including `{-}`, `{2(-,-)}`, and `{2(0,-)}` is
+      // valid because the body contains at least one node.
       const ovInnerLen = overlayClose - (overlayOpen + 1);
       if (ovInnerLen === 0) {
         return new ValidationResult(false, overlayOpen + 1, true, {
           ok: false, error: { code: "INVALID_EMPTY", kind: "SYNTAX",
-            message: "An empty m0 string is not a valid renderable layout.",
-            position: 0, span: { start: 0, end: 0 } } });
+            message: "An empty overlay body has no nodes to anchor — use `{-}` for a null logical-owner marker.",
+            position: overlayOpen + 1, span: { start: overlayOpen, end: overlayClose + 1 } } });
       }
-      if (ovInnerLen === 1) {
-        const ch = s.charAt(overlayOpen + 1);
-        if (ch === "0" || ch === "-") {
-          const msg = ch === "0"
-            ? "A bare passthrough tile ('0') produces no renderable output."
-            : "A bare null tile ('-') produces no renderable output.";
-          return new ValidationResult(false, overlayOpen + 1, true, {
-            ok: false, error: { code: "INVALID_EMPTY", kind: "SYNTAX",
-              message: msg, position: 0, span: { start: 0, end: 1 } } });
-        }
+      if (ovInnerLen === 1 && s.charAt(overlayOpen + 1) === "0") {
+        return new ValidationResult(false, overlayOpen + 1, true, {
+          ok: false, error: { code: "INVALID_EMPTY", kind: "SYNTAX",
+            message: "A bare passthrough tile ('0') in an overlay body has nothing to donate space to — use `{-}` for a null marker.",
+            position: overlayOpen + 1, span: { start: overlayOpen + 1, end: overlayClose } } });
       }
 
       if (overlayOpen + 1 < overlayClose) {
@@ -858,21 +895,15 @@ export function validateM0StringCanonical(
     };
   }
 
-  // Zero-source overlay — O(n) via index
-  const zsoPos = findZeroSourceOverlayIndexed(input, idx, 0, input.length);
-  if (zsoPos !== -1) {
-    return {
-      ok: false,
-      error: {
-        code: "ZERO_SOURCE_OVERLAY",
-        kind: "SEMANTIC",
-        message:
-          "Overlay body must contain at least one source tile ('1' / 'F').",
-        position: zsoPos,
-        span: { start: zsoPos, end: zsoPos + 1 },
-      },
-    };
-  }
+  // (Per-overlay "must contain a source tile" check has been removed.
+  // Empty overlay bodies — `{}`, `{-}`, `{0}`, or any composition that
+  // never paints — are now valid. The whole-string `NO_SOURCES` check
+  // above still enforces that the OUTER layout produces at least one
+  // tile, so the renderer is still guaranteed something to draw at the
+  // root. Overlay bodies are free to be purely structural (logical
+  // owners with no paint, used as labeled anchors). See
+  // `findZeroSourceOverlayIndexed` — kept around as a queryable
+  // primitive even though we no longer raise on it.)
 
   // Root-level passthrough
   if (getNextToken(input) === "0") {

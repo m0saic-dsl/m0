@@ -1,0 +1,10 @@
+# m0
+# version: 1
+# created: 2026-06-27T00:00:00.000Z
+# size: 3840x2160
+# app: hand-drawn (genesis)
+# title: First heavy stress-test — 38-frame nested subdivision
+# source: original hand-drawn derivation
+# note: The first deliberately heavy layout — 38 frames worked out by hand to stress-test the recursive parse. Reconstructed from the sheet's grid geometry (all 38 rects verified). See README.md.
+
+2(2[2(2[2(1,1),2(1,1)],2(2[1,1],2[1,1])),2(2[2(1,2[1,1]),2(1,2[1,1])],2[3(1,1,1),3(1,1,1)])],2[4(1,2[1,1],2[1,1],1),2(2[3(1,1,1),3(1,1,1)],2[2(2[1,1],1),2(2[1,1],1)])])

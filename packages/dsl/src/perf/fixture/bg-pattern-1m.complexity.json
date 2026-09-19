@@ -1,0 +1,27 @@
+{
+  "fixture": "bg-pattern-1m.m0",
+  "description": "Real hand-built 1080p background pattern — 226 rendered frames inside ~532K structural nodes (530K passthroughs). The canonical renderOnly case: ~1M-char DSL where the full editor graph is ~2356x the rendered set.",
+  "source": "sandbox session 2026-06-23-ffmpeg-pulse-scatter/bg_paattern_orig.m0c (re-serialized to .m0 via dsl-file-formats)",
+  "dslLength": 1066527,
+  "complexity": {
+    "frameCount": 226,
+    "passthroughCount": 530754,
+    "nullCount": 900,
+    "groupCount": 450,
+    "nodeCount": 532330,
+    "precisionCost": 1920,
+    "precision": {
+      "maxSplitX": 1920,
+      "maxSplitY": 1080,
+      "maxSplitAny": 1920
+    }
+  },
+  "feasibility": {
+    "minWidthPx": 1898,
+    "minHeightPx": 1052
+  },
+  "parseCounts": {
+    "renderFrames": 226,
+    "editorFrames": 532330
+  }
+}

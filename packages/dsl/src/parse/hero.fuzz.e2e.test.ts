@@ -610,13 +610,28 @@ describe("HERO: invalid string rejection", () => {
     if (!result.ok) expect((result as ValidationFail).error.code).toBe("NO_SOURCES");
   });
 
-  // zero-source overlay
+  // Overlay bodies — must contribute at least one node, but don't have to
+  // paint. ZERO_SOURCE_OVERLAY was dropped. Empty `{}` and bare `{0}` are
+  // still rejected (no nodes / nothing to donate space to); bare `{-}`,
+  // all-null splits, and passthroughs with siblings are now valid as
+  // logical-owner anchors.
   test.each([
     "1{2(-,-)}",
-  ])("rejects zero-source overlay: %s", (s) => {
-    const result = validateM0String(s);
-    expect(result.ok).toBe(false);
-    if (!result.ok) expect((result as ValidationFail).error.code).toBe("ZERO_SOURCE_OVERLAY");
+    "1{-}",
+    "1{2(0,-)}",
+    "1{-{-}}",
+    "1{-{2(0,-)}}",
+    "2(-{F},-{1})",
+  ])("accepts logical-owner overlay: %s", (s) => {
+    expect(isValidM0String(s)).toBe(true);
+  });
+
+  test.each([
+    "1{}",
+    "1{0}",
+    "1{-{}}",
+  ])("rejects empty or bare-passthrough overlay: %s", (s) => {
+    expect(isValidM0String(s)).toBe(false);
   });
 
   // bad chars

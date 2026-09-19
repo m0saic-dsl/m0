@@ -27,7 +27,7 @@ import type { M0ValidationError } from "./errors";
  * chains (e.g., document flattening, composition) must explicitly
  * normalize BEFORE branding:
  *
- *   import { rewriteOverlayChains } from "@m0saic/dsl-stdlib";
+ *   rewriteOverlayChains (exported by the stdlib package)
  *   const normalized = rewriteOverlayChains(canonical);
  *   // then validate + brand
  *
@@ -363,6 +363,19 @@ export type M0Warning = {
 export type ParseM0Options = {
   trace?: boolean;
   precisionNorm?: number;
+  /**
+   * How much of the structural graph to materialize.
+   * - `"full"` (default): every node (frames, passthrough, null, group) plus
+   *   passthrough owners — the complete editor graph.
+   * - `"renderOnly"`: only rendered frames, with REAL stableKeys
+   *   (byte-identical to `"full"`), skipping the all-node editorFrames map and
+   *   the passthrough-owner DFS. A large win on passthrough/null-dense layouts
+   *   where total nodes ≫ rendered frames.
+   *
+   * Both modes attach per-frame source spans (`meta.span`) — captured for free
+   * during the engine parse, so there is no cost or ceiling reason to omit them.
+   */
+  materialize?: "full" | "renderOnly";
 };
 
 export type ParseM0Result =
@@ -404,16 +417,3 @@ export type M0IR = {
   /** DFS traversal event stream. Present only when opts.trace. */
   traversal?: M0TraversalEvent[];
 };
-
-/**
- * FullGraphWithTraversal
- *
- * Return type for parseM0StringToFullGraphWithTraversal.
- * Bundles the full structural graph with the DFS traversal event stream.
- */
-export type FullGraphWithTraversal = {
-  editorFrames: EditorFrame[];
-  traversal: M0TraversalEvent[];
-};
-
-export type M0Label = { text: string; color?: string };

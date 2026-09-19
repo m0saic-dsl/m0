@@ -1576,3 +1576,91 @@ describe("zero-frame overlay stackOrder", () => {
     }
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// materialize: "renderOnly" — render-only graph with REAL stableKeys
+// ─────────────────────────────────────────────────────────────────────────────
+
+import { parseM0StringComplete } from "./m0StringParser";
+
+describe('parseM0StringComplete { materialize: "renderOnly" }', () => {
+  const W = 1920, H = 1080;
+  // Mix of flat split, nested overlay, passthrough (0) and null (-) density.
+  const CASES = [
+    "1",
+    "2(1,1)",
+    "3(0,1,1)",
+    "3[-,1,-]",
+    "2(2(1,1),1)",
+    "1{1}",
+    "2(1,1){2(0,1)}",
+    "4(-,1,0,1)",
+  ];
+
+  test("rendered-frame stableKeys are byte-identical to the full path", () => {
+    for (const m0 of CASES) {
+      const full = parseM0StringComplete(m0, W, H);
+      const ro = parseM0StringComplete(m0, W, H, { materialize: "renderOnly" });
+      expect(full.ok).toBe(true);
+      expect(ro.ok).toBe(true);
+      if (!full.ok || !ro.ok) continue;
+
+      const fullKeys = full.ir.renderFrames.map((f) => f.meta.stableKey);
+      const roKeys = ro.ir.renderFrames.map((f) => f.meta.stableKey);
+      expect(roKeys).toEqual(fullKeys);
+
+      // Geometry + ordering also identical
+      const geom = (fr: typeof full.ir.renderFrames[number]) =>
+        ({ x: fr.x, y: fr.y, width: fr.width, height: fr.height, paintOrder: fr.paintOrder, logicalIndex: fr.logicalIndex });
+      expect(ro.ir.renderFrames.map(geom)).toEqual(full.ir.renderFrames.map(geom));
+    }
+  });
+
+  test("editorFrames contain only rendered frames — no passthrough/null/group/root", () => {
+    for (const m0 of CASES) {
+      const ro = parseM0StringComplete(m0, W, H, { materialize: "renderOnly" });
+      expect(ro.ok).toBe(true);
+      if (!ro.ok) continue;
+      for (const ef of ro.ir.editorFrames) {
+        // Rendered frames are "frame" (or "root" for a bare single tile) —
+        // never group/passthrough/null.
+        expect(["frame", "root"]).toContain(ef.kind);
+        expect(ef.nullFrame).toBe(false);
+        expect(ef.passthroughFrame).toBe(false);
+        expect(ef.passthroughOwner).toBeUndefined();
+      }
+      // One editorFrame per rendered frame
+      expect(ro.ir.editorFrames.length).toBe(ro.ir.renderFrames.length);
+    }
+  });
+
+  test("editorFrames carry overlayDepth + logicalIndex + real keys", () => {
+    const ro = parseM0StringComplete("2(1,1){2(0,1)}", W, H, { materialize: "renderOnly" });
+    expect(ro.ok).toBe(true);
+    if (!ro.ok) return;
+    const depths = new Set(ro.ir.editorFrames.map((f) => f.overlayDepth));
+    expect(depths.has(0)).toBe(true);
+    expect(depths.has(1)).toBe(true); // the {…} overlay layer
+    for (const ef of ro.ir.editorFrames) {
+      expect(typeof ef.logicalIndex).toBe("number");
+      expect(ef.meta.stableKey).not.toMatch(/^f\d+$/); // real key, not synthetic placeholder
+    }
+  });
+
+  test("renderOnly spans match the full path (editing splice anchor)", () => {
+    // Regression guard: drag-to-frame splice + rect-edit-by-span need a span on
+    // every rendered frame. renderOnly must carry it byte-identically to full.
+    for (const m0 of CASES) {
+      const full = parseM0StringComplete(m0, W, H);
+      const ro = parseM0StringComplete(m0, W, H, { materialize: "renderOnly" });
+      if (!full.ok || !ro.ok) continue;
+      const spanByKey = (r: Extract<typeof full, { ok: true }>) =>
+        new Map(r.ir.renderFrames.map((f) => [String(f.meta.stableKey), f.meta.span]));
+      const fullSpans = spanByKey(full);
+      for (const [key, span] of spanByKey(ro)) {
+        expect(span).toBeTruthy(); // every rendered frame has a span
+        expect(span).toEqual(fullSpans.get(key));
+      }
+    }
+  });
+});

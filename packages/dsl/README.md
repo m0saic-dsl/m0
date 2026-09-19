@@ -72,8 +72,9 @@ A m0 string describes how a rectangle is recursively subdivided.
   1( and 1[ are illegal             ILLEGAL_ONE_SPLIT
   }{ is illegal (overlay chains)    OVERLAY_CHAIN — normalize with dsl-stdlib
   trailing 0 is illegal             PASSTHROUGH_TO_NOTHING
-  empty layouts are illegal         NO_SOURCES
-  empty overlay bodies illegal      ZERO_SOURCE_OVERLAY
+  empty root layouts are illegal    NO_SOURCES
+  empty / bare-0 overlay illegal    INVALID_EMPTY (overlay must have ≥1 node;
+                                    paint not required — `-{−}` is valid)
   whitespace is stripped globally
   aliases normalized: F→1, >→0      canonical form
 ```
@@ -83,26 +84,27 @@ A m0 string describes how a rectangle is recursively subdivided.
 ## API overview
 
 ```
-  ┌─────────────────────────────────────────────────────────────────┐
-  │                        @m0saic/dsl                              │
-  │                                                                 │
-  │  VALIDATE              PARSE                 FORMAT             │
-  │  ─────────             ─────                 ──────             │
-  │  validateM0String  parseM0StringTo      toCanonicalM0String │
-  │  isValidM0String   RenderFrames          toPrettyM0String    │
-  │                        LogicalFrames                            │
-  │                        FullGraph             EQUALITY           │
-  │                        FullGraphWith         ────────           │
-  │  COMPLEXITY            Traversal             areM0Strings       │
-  │  ──────────            Complete              CanonicalEqual     │
-  │  getComplexityMetrics                        areM0Strings       │
-  │  getComplexityMetrics  FEASIBILITY           FrameEqual         │
-  │  Fast                  ───────────                              │
-  │  getFrameCount         computeFeasibility    HELPERS            │
-  │  getPassthroughCount   computePrecision      ───────            │
-  │  getNodeCount          FromString            assertOk           │
-  │  getPrecisionCost                                               │
-  └─────────────────────────────────────────────────────────────────┘
+  ┌───────────────────────────────────────────────────────────────────┐
+  │                        @m0saic/dsl                                │
+  │                                                                   │
+  │  VALIDATE              PARSE                 FORMAT               │
+  │  ─────────             ─────                 ──────               │
+  │  validateM0String      parseM0StringTo       toCanonicalM0String  │
+  │  isValidM0String       RenderFrames          toPrettyM0String     │
+  │                        LogicalFrames         toCompactM0String    │
+  │                        FullGraph             fromCompactM0String  │
+  │                        FullGraphWith                              │
+  │  COMPLEXITY            Traversal             EQUALITY             │
+  │  ──────────            Complete              ────────             │
+  │  getComplexityMetrics                        areM0Strings         │
+  │  getComplexityMetrics  FEASIBILITY           CanonicalEqual       │
+  │  Fast                  ───────────           areM0Strings         │
+  │  getFrameCount         computeFeasibility    FrameEqual           │
+  │  getPassthroughCount   computePrecision                           │
+  │  getNodeCount          FromString            HELPERS              │
+  │  getPrecisionCost                            ───────              │
+  │                                              assertOk             │
+  └───────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -135,8 +137,8 @@ All validation is O(n). Canonicalizes input first (whitespace + aliases).
   ─────────────           ───────────────          ──────────────────
   INVALID_CHAR            TOKEN_COUNT              PASSTHROUGH_TO_NOTHING
   INVALID_EMPTY           NO_SOURCES               ILLEGAL_ONE_SPLIT
-  UNBALANCED              ZERO_SOURCE_OVERLAY      SPLIT_EXCEEDS_AXIS
-  TOKEN_RULE              OVERLAY_CHAIN
+  UNBALANCED              OVERLAY_CHAIN            SPLIT_EXCEEDS_AXIS
+  TOKEN_RULE
 ```
 
 Each error includes `code`, `kind`, `message`, `position`, and `span`.
@@ -200,6 +202,35 @@ toPrettyM0String("2(1,0,1)");      // "2(F,>,F)" — presentation form
 ```
 
 Canonical form: no whitespace, `1` not `F`, `0` not `>`.
+
+### Compact form (transport)
+
+Pretty form with runs of `>` or `-` folded into `N>` / `N-`. Built for
+length-constrained transports — share URLs, query strings — where a long run of
+passthroughs would otherwise blow a length budget.
+
+```typescript
+import { toCompactM0String, fromCompactM0String } from "@m0saic/dsl";
+
+toCompactM0String("6[1,0,0,0,0,1]");  // "6[F,4>F]"
+fromCompactM0String("6[F,4>F]");      // "6[1,0,0,0,0,1]" — always canonical
+```
+
+The round-trip law, for every valid m0 string `x`:
+
+```typescript
+fromCompactM0String(toCompactM0String(x)) === toCanonicalM0String(x)
+```
+
+**Compact is not grammar.** A folded string fails `isValidM0String` by
+construction — a NUMBER may only be followed by `(` or `[`, so `N>` / `N-` is
+free namespace no valid m0 can occupy. That is exactly what makes the fold
+unambiguous, and what makes `fromCompactM0String` a guaranteed no-op on plain
+canonical or pretty input. Never persist compact form or hand it to a parser;
+unfold first. Files stay canonical.
+
+`fromCompactM0String` throws on a zero, unsafe, or oversized run count — it is
+meant to be fed by untrusted input.
 
 ---
 

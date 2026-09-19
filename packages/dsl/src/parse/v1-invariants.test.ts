@@ -16,7 +16,6 @@ import {
   isValidM0String,
   getComplexityMetricsFast,
   getFrameCount,
-  areM0StringsCanonicalEqual,
   areM0StringsFrameEqual,
   computeFeasibility,
 } from "../index";
@@ -248,7 +247,9 @@ describe("error position accuracy", () => {
     { input: "", code: "INVALID_EMPTY", positionNear: 0 },
     { input: "1(1)", code: "ILLEGAL_ONE_SPLIT", positionNear: 0 },
     { input: "2(-,-)", code: "NO_SOURCES", positionNear: 0 },
-    { input: "1{2(-,-)}", code: "ZERO_SOURCE_OVERLAY", positionNear: 2 },
+    // (ZERO_SOURCE_OVERLAY removed — empty / null-only overlay bodies are
+    // valid logical-owner anchors now. The whole-string NO_SOURCES check
+    // above still covers fully-empty layouts.)
     { input: "2(1,0)", code: "PASSTHROUGH_TO_NOTHING", positionNear: 4 },
   ];
 

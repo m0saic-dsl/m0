@@ -26,8 +26,16 @@ function fixImports(filePath) {
   content = content.replace(
     /(from\s+["'])(\.\.?\/[^"']+)(["'])/g,
     (match, pre, specifier, post) => {
-      // Already has extension
-      if (/\.\w+$/.test(specifier)) return match;
+      // Already has a RESOLVABLE extension. `/\.\w+$/` was too greedy: a
+      // dotted BASENAME like "./mTiles.generated" matched it, so the rewrite
+      // was skipped and the ESM build emitted an unresolvable specifier
+      // (platform shipped exactly that). Only real module extensions count —
+      // everything else is part of the filename.
+      // `.node` deliberately NOT listed: no package here imports a native
+      // addon by relative specifier, while `foo.node.ts` / `foo.web.ts` IS an
+      // established variant-naming convention in this repo — treating it as
+      // an extension would reintroduce the same bug under a different name.
+      if (/\.(?:js|mjs|cjs|json)$/.test(specifier)) return match;
 
       // Check if it's a directory (needs /index.js)
       const asDir = path.resolve(dir, specifier);

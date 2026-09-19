@@ -1,0 +1,10 @@
+# m0
+# version: 1
+# created: 2026-06-27T00:00:00.000Z
+# size: 1080x720
+# app: hand-drawn (genesis)
+# title: Passthrough donation — the decision (forward), canonical example
+# source: original hand-drawn derivation
+# note: The page where forward donation was chosen. Canvas 1080x720, 4-way column split 4(1,0,2[1,1],1): the 0 (col 2) donates its 270px FORWARD to the next child, the 2[1,1] block, which widens to 540 (two 540x360 rows). Tiles 1 and 4 stay 270x720. See README.md.
+
+4(1,0,2[1,1],1)

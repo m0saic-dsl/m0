@@ -1,6 +1,6 @@
 {
   "name": "@m0saic/dsl",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Core parser, validator, and algebra for the m0 layout DSL",
   "keywords": [
     "m0saic",
@@ -21,7 +21,7 @@
     "url": "git+https://github.com/m0saic-dsl/m0.git",
     "directory": "packages/dsl"
   },
-  "homepage": "https://github.com/m0saic-dsl/m0",
+  "homepage": "https://github.com/m0saic-dsl/m0/tree/main/packages/dsl#readme",
   "bugs": {
     "url": "https://github.com/m0saic-dsl/m0/issues"
   },
