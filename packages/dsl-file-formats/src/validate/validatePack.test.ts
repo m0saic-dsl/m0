@@ -1,6 +1,6 @@
 import { validatePack } from "./validatePack";
-import type { M0Label, StableKey } from "@m0saic/dsl";
-import type { M0pFile, M0pVariantEntry } from "../types";
+import type { StableKey } from "@m0saic/dsl";
+import type { M0Label, M0pFile, M0pVariantEntry } from "../types";
 
 const sk = (s: string) => s as StableKey;
 const labelsOf = (entries: Array<[string, M0Label]>) =>
@@ -12,7 +12,11 @@ function makeVariant(overrides: Partial<M0pVariantEntry> = {}): M0pVariantEntry 
     size: { width: 1920, height: 1080 },
     m0: "F",
     labels: null,
-    derive: { image: null },
+    derive: { background: null },
+    masks: null,
+    fill: null,
+    insets: null,
+    rankSets: null,
     custom: null,
     ...overrides,
   };
@@ -175,6 +179,46 @@ describe("validatePack", () => {
       stableKey: "r/gone",
       text: "orphan",
     });
+    expect(result.perVariant.desktop.hasWarning).toBe(true);
+  });
+
+  it("runs inset-orphan + collapse checks via parseCache when supplied", () => {
+    const pack = makePack({
+      variants: {
+        desktop: makeVariant({
+          insets: {
+            [sk("r/fc0")]: { top: 0.02, right: 0.02, bottom: 0.02, left: 0.02 },
+            [sk("r/gone")]: { top: 0.02, right: 0.02, bottom: 0.02, left: 0.02 },
+          },
+        }),
+      },
+    });
+    const cache = new Map<string, ReadonlySet<string>>([
+      ["desktop", new Set<string>(["r/fc0"])],
+    ]);
+    const result = validatePack(pack, { parseCache: cache });
+    expect(result.perVariant.desktop.insetIssues).toHaveLength(1);
+    expect(result.perVariant.desktop.insetIssues[0]).toMatchObject({
+      code: "ORPHANED_INSET",
+      stableKey: "r/gone",
+    });
+    expect(result.perVariant.desktop.hasWarning).toBe(true);
+  });
+
+  it("flags out-of-range insets even without a parseCache (per-entry concern)", () => {
+    const pack = makePack({
+      variants: {
+        desktop: makeVariant({
+          insets: { [sk("r/fc0")]: { top: 1.5, right: 0.02, bottom: 0.02, left: 0.02 } },
+        }),
+      },
+    });
+    const result = validatePack(pack, { parseCache: new Map() });
+    // Orphan detection is skipped without a cache, but per-entry range/collapse
+    // checks still fire (top: 1.5 is out-of-range AND collapses vertically).
+    const codes = result.perVariant.desktop.insetIssues.map(i => i.code);
+    expect(codes).toContain("INSET_OUT_OF_RANGE");
+    expect(codes).not.toContain("ORPHANED_INSET");
     expect(result.perVariant.desktop.hasWarning).toBe(true);
   });
 

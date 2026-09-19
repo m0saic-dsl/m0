@@ -44,7 +44,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { parseM0File, serializeM0File, serializeM0cFile, parseM0cFile } from "../index";
 import { validateM0String, parseM0StringComplete, getComplexityMetricsFast } from "@m0saic/dsl";
-import type { M0Label } from "@m0saic/dsl";
+import type { M0Label } from "../types";
 
 // ─────────────────────────────────────────────────────────────
 // Fixture loading & tiling (reused from perf suite)

@@ -1,4 +1,5 @@
-import type { M0Label, StableKey } from "@m0saic/dsl";
+import type { StableKey } from "@m0saic/dsl";
+import type { M0Label } from "../types";
 import type { LabelValidationResult, OrphanedLabelIssue } from "./types";
 import { EMPTY_LABEL_RESULT } from "./types";
 

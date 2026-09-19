@@ -21,6 +21,90 @@ export type OrphanedLabelIssue = {
 
 export type LabelIssue = OrphanedLabelIssue;
 
+/** A fill entry maps to a stableKey that no longer exists in the layout's
+ *  parsed frame set. Same blame model as `ORPHANED_LABEL`. */
+export type OrphanedFillIssue = {
+  level: "warning";
+  code: "ORPHANED_FILL";
+  stableKey: string;
+  message: string;
+};
+
+/** A fill entry's `color` is not a valid `#rrggbb` or `#rrggbbaa` CSS hex
+ *  literal. Surfaces malformed input early so the inspector doesn't
+ *  silently render a default-colored rect. */
+export type InvalidFillColorIssue = {
+  level: "warning";
+  code: "INVALID_FILL_COLOR";
+  stableKey: string;
+  color: string;
+  message: string;
+};
+
+export type FillIssue = OrphanedFillIssue | InvalidFillColorIssue;
+
+export type FillValidationResult = {
+  issues: FillIssue[];
+  hasError: boolean;
+  hasWarning: boolean;
+};
+
+export const EMPTY_FILL_RESULT: FillValidationResult = {
+  issues: [],
+  hasError: false,
+  hasWarning: false,
+};
+
+/** An inset entry maps to a stableKey that no longer exists in the layout's
+ *  parsed frame set. Same blame model as `ORPHANED_FILL`. */
+export type OrphanedInsetIssue = {
+  level: "warning";
+  code: "ORPHANED_INSET";
+  stableKey: string;
+  message: string;
+};
+
+/** An inset edge is outside the sane `[0, 1)` fraction range (< 0 or ≥ 1).
+ *  The engine clamps at render time (`Math.max(1, …)`), so nothing crashes —
+ *  flag so the author notices a likely mistake. */
+export type InsetOutOfRangeIssue = {
+  level: "warning";
+  code: "INSET_OUT_OF_RANGE";
+  stableKey: string;
+  edge: "top" | "right" | "bottom" | "left";
+  value: number;
+  message: string;
+};
+
+/** The insets on one axis sum to ≥ 1, which would collapse the frame's paint
+ *  box on that axis. The engine clamps the resulting dimension to ≥ 1px, so
+ *  it degrades rather than crashes — surfaced as a warning. */
+export type InsetCollapsesFrameIssue = {
+  level: "warning";
+  code: "INSET_COLLAPSES_FRAME";
+  stableKey: string;
+  axis: "horizontal" | "vertical";
+  sum: number;
+  message: string;
+};
+
+export type InsetIssue =
+  | OrphanedInsetIssue
+  | InsetOutOfRangeIssue
+  | InsetCollapsesFrameIssue;
+
+export type InsetValidationResult = {
+  issues: InsetIssue[];
+  hasError: boolean;
+  hasWarning: boolean;
+};
+
+export const EMPTY_INSET_RESULT: InsetValidationResult = {
+  issues: [],
+  hasError: false,
+  hasWarning: false,
+};
+
 /** A pack region exists in the registry but the variant has no label
  *  whose text matches it. */
 export type RegionMissingIssue = {
@@ -54,6 +138,8 @@ export type PackVariantIssues = {
   variantKey: string;
   regionIssues: RegionIssue[];
   labelIssues: LabelIssue[];
+  fillIssues: FillIssue[];
+  insetIssues: InsetIssue[];
   hasError: boolean;
   hasWarning: boolean;
 };

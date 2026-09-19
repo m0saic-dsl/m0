@@ -1,6 +1,15 @@
 import type { M0pFile, M0pVariantEntry } from "../types";
-import type { LabelIssue, PackValidationResult, PackVariantIssues, RegionIssue } from "./types";
+import type {
+  FillIssue,
+  InsetIssue,
+  LabelIssue,
+  PackValidationResult,
+  PackVariantIssues,
+  RegionIssue,
+} from "./types";
 import { validateLabels } from "./validateLabels";
+import { validateFill } from "./validateFill";
+import { validateInsets } from "./validateInsets";
 
 /**
  * MOP-level region-coverage + per-variant orphan validator.
@@ -81,22 +90,49 @@ export function validatePack(
     }
 
     let labelIssues: LabelIssue[] = [];
+    let fillIssues: FillIssue[] = [];
+    let insetIssues: InsetIssue[] = [];
     const validKeys = parseCache?.get(key);
     if (validKeys) {
       labelIssues = validateLabels({
         validStableKeys: validKeys,
         labels: entry.labels ?? null,
       }).issues;
+      fillIssues = validateFill({
+        validStableKeys: validKeys,
+        fill: entry.fill ?? null,
+      }).issues;
+      insetIssues = validateInsets({
+        validStableKeys: validKeys,
+        insets: entry.insets ?? null,
+      }).issues;
+    } else {
+      // Even without a parse cache we can still flag per-entry concerns that
+      // don't need structural context: invalid hex colors, and out-of-range /
+      // frame-collapsing insets. Orphan detection is skipped (it needs the
+      // parsed frame set).
+      fillIssues = validateFill({
+        validStableKeys: new Set<string>(),
+        fill: entry.fill ?? null,
+      }).issues.filter(i => i.code === "INVALID_FILL_COLOR");
+      insetIssues = validateInsets({
+        validStableKeys: new Set<string>(),
+        insets: entry.insets ?? null,
+      }).issues.filter(i => i.code !== "ORPHANED_INSET");
     }
 
     const variantHasError = regionIssues.some(i => i.level === "error");
     const variantHasWarning = regionIssues.some(i => i.level === "warning")
-      || labelIssues.length > 0;
+      || labelIssues.length > 0
+      || fillIssues.length > 0
+      || insetIssues.length > 0;
 
     perVariant[key] = {
       variantKey: key,
       regionIssues,
       labelIssues,
+      fillIssues,
+      insetIssues,
       hasError: variantHasError,
       hasWarning: variantHasWarning,
     };

@@ -1,12 +1,21 @@
 import { formatISO } from "../m0/serializeM0File";
-import { toCanonicalM0String, type M0Label } from "@m0saic/dsl";
+import { canonicalizeAndValidateM0 } from "../m0Validation";
+import { encodeBackgroundImage } from "../derive";
+import { normalizeAgent, parseAgentOrNull } from "../m0c/m0cFile";
 import type {
   M0pFile,
   M0pVariantEntry,
   M0pRegions,
   M0FileMeta,
+  M0AgentMeta,
   M0cDeriveImage,
   M0cFile,
+  M0cFill,
+  M0cInset,
+  M0cMaskEntry,
+  M0cRankSet,
+  M0cRankSetEntry,
+  M0Label,
 } from "../types";
 
 // ─────────────────────────────────────────────────────────────
@@ -36,7 +45,24 @@ export type SerializeM0pVariantInput = {
   m0: string;
   meta?: M0FileMeta | null;
   labels?: Record<string, M0Label> | null;
+  /** Convenience for image-flavored backgrounds — equivalent to
+   *  `background: encodeBackgroundImage(img)`. Ignored when
+   *  `background` is set explicitly. */
   deriveImage?: M0cDeriveImage | null;
+  /** Direct write-through of the `derive.background` slot. See the
+   *  JSDoc on `M0cFile.derive` for the documented payload forms
+   *  (`data:image/…`, `#rrggbb`, `#rrggbbaa`, or `null`). */
+  background?: string | null;
+  /** Per-frame inline mask shapes keyed by stableKey. Same shape as M0cFile.masks. */
+  masks?: Record<string, M0cMaskEntry | null> | null;
+  /** Per-frame rect-fill sidecar keyed by stableKey. Same shape as M0cFile.fill. */
+  fill?: Record<string, M0cFill> | null;
+  /** Per-frame insets keyed by stableKey. Same shape as M0cFile.insets —
+   *  per-edge fractions (0..1) of each frame's cell. All-zero entries dropped. */
+  insets?: Record<string, M0cInset> | null;
+  /** Named rank sets, keyed by set name then by stableKey. Same shape as
+   *  M0cFile.rankSets. */
+  rankSets?: Record<string, M0cRankSet | null> | null;
   /** Free-form per-variant JSON. Round-trips unchanged. */
   custom?: unknown | null;
   /** Optional per-variant override of pack-level fields. */
@@ -51,6 +77,8 @@ export function serializeM0pFile(opts: {
   app?: string | null;
   appVersion?: string | null;
   meta?: M0FileMeta | null;
+  /** Pack-level agent ↔ human annotations (sign-off note/question/response), mirroring `.m0c`. */
+  agent?: M0AgentMeta | null;
   regions?: M0pRegions | null;
   /** Free-form pack-level JSON. Round-trips unchanged. */
   custom?: unknown | null;
@@ -81,6 +109,8 @@ export function serializeM0pFile(opts: {
     });
   }
 
+  const packAgent = normalizeAgent(opts.agent ?? null);
+
   const file: M0pFile = {
     format: "m0p",
     version: 1,
@@ -88,6 +118,9 @@ export function serializeM0pFile(opts: {
     app: packApp,
     appVersion: packAppVersion,
     meta: packMeta,
+    // Pack-level agent emitted only when present — keeps agent-free packs
+    // byte-identical.
+    ...(packAgent ? { agent: packAgent } : {}),
     regions,
     custom: opts.custom ?? null,
     variants,
@@ -103,10 +136,11 @@ function normalizeVariantForSerialize(
 ): M0pVariantEntry {
   if (!v) throw new Error(`serializeM0pFile: variant "${key}" is missing.`);
 
-  const m0 = toCanonicalM0String(v.m0);
-  if (!m0) {
-    throw new Error(`serializeM0pFile: variant "${key}" has empty m0 payload.`);
-  }
+  const m0 = canonicalizeAndValidateM0(
+    `serializeM0pFile (variant "${key}")`,
+    v.m0,
+    `serializeM0pFile: variant "${key}" has empty m0 payload.`,
+  );
 
   if (!v.size) {
     throw new Error(`serializeM0pFile: variant "${key}" missing required size.`);
@@ -118,7 +152,15 @@ function normalizeVariantForSerialize(
     size: { width: v.size.width, height: v.size.height },
     m0,
     labels: normalizeLabels(v.labels ?? null),
-    derive: normalizeDerive(v.deriveImage ?? null),
+    derive: normalizeDerive(
+      v.background !== undefined
+        ? v.background
+        : encodeBackgroundImage(v.deriveImage ?? null),
+    ),
+    masks: normalizeMasks(v.masks ?? null),
+    fill: normalizeFill(v.fill ?? null),
+    insets: normalizeInsets(v.insets ?? null),
+    rankSets: normalizeRankSets(v.rankSets ?? null),
     custom: v.custom ?? null,
   };
 
@@ -177,8 +219,131 @@ function normalizeLabels(
   return Object.keys(out).length ? out : null;
 }
 
-function normalizeDerive(img: M0cDeriveImage | null): { image: M0cDeriveImage | null } {
-  return { image: img ?? null };
+function normalizeDerive(bg: string | null | undefined): { background: string | null } {
+  if (typeof bg !== "string") return { background: null };
+  const trimmed = bg.trim();
+  return { background: trimmed === "" ? null : trimmed };
+}
+
+function normalizeMasks(
+  masks: Record<string, M0cMaskEntry | null> | null,
+): Record<string, M0cMaskEntry | null> | null {
+  // Mirror the .m0c implementation — same indexing semantics + same
+  // null-vs-absent distinction (null = "explicitly no mask").
+  if (!masks) return null;
+  const out: Record<string, M0cMaskEntry | null> = {};
+  for (const [k, v] of Object.entries(masks).sort(([a], [b]) => a.localeCompare(b))) {
+    if (!k) continue;
+    if (v === null) {
+      out[k] = null;
+      continue;
+    }
+    if (!v || typeof v.localPath !== "string" || v.localPath.trim() === "") continue;
+    const b = v.bounds;
+    if (
+      !b ||
+      typeof b.x !== "number" ||
+      typeof b.y !== "number" ||
+      typeof b.width !== "number" ||
+      typeof b.height !== "number"
+    ) {
+      continue;
+    }
+    out[k] = {
+      localPath: v.localPath,
+      bounds: { x: b.x, y: b.y, width: b.width, height: b.height },
+    };
+  }
+  return Object.keys(out).length ? out : null;
+}
+
+function normalizeFill(
+  fill: Record<string, M0cFill> | null,
+): Record<string, M0cFill> | null {
+  // Mirror the .m0c implementation — entries lacking both `color` and
+  // `mediaRef` are dropped (no meaningful payload).
+  if (!fill) return null;
+  const out: Record<string, M0cFill> = {};
+  for (const [k, v] of Object.entries(fill).sort(([a], [b]) => a.localeCompare(b))) {
+    if (!k) continue;
+    if (!v) continue;
+    const color = typeof v.color === "string" ? v.color.trim() : "";
+    const mediaRef = typeof v.mediaRef === "string" ? v.mediaRef.trim() : "";
+    if (!color && !mediaRef) continue;
+    const entry: M0cFill = {};
+    if (color) entry.color = color;
+    if (mediaRef) entry.mediaRef = mediaRef;
+    out[k] = entry;
+  }
+  return Object.keys(out).length ? out : null;
+}
+
+/** The four inset edges, in canonical (serialized) order. */
+const INSET_EDGES = ["top", "right", "bottom", "left"] as const;
+
+function normalizeInsets(
+  insets: Record<string, M0cInset> | null,
+): Record<string, M0cInset> | null {
+  // Mirror the .m0c implementation — per-edge finite fractions, all-zero
+  // entries dropped (an inset is meaningful only when an edge > 0).
+  if (!insets) return null;
+  const out: Record<string, M0cInset> = {};
+  for (const [k, v] of Object.entries(insets).sort(([a], [b]) => a.localeCompare(b))) {
+    if (!k) continue;
+    if (!v || typeof v !== "object") continue;
+    if (INSET_EDGES.some((e) => typeof v[e] !== "number" || !Number.isFinite(v[e]))) continue;
+    if (INSET_EDGES.every((e) => v[e] === 0)) continue;
+    out[k] = { top: v.top, right: v.right, bottom: v.bottom, left: v.left };
+  }
+  return Object.keys(out).length ? out : null;
+}
+
+function normalizeRankSets(
+  rankSets: Record<string, M0cRankSet | null> | null,
+): Record<string, M0cRankSet | null> | null {
+  // Mirror the .m0c implementation — same outer-then-inner sort + same
+  // null-vs-absent distinction (outer null = "set intentionally empty";
+  // inner null = "this frame has no rank in this set").
+  if (!rankSets) return null;
+  const out: Record<string, M0cRankSet | null> = {};
+  for (const [name, set] of Object.entries(rankSets).sort(([a], [b]) =>
+    a.localeCompare(b),
+  )) {
+    if (!name) continue;
+    if (set === null) {
+      out[name] = null;
+      continue;
+    }
+    const normalized = normalizeRankSet(set);
+    if (normalized === null) continue;
+    out[name] = normalized;
+  }
+  return Object.keys(out).length ? out : null;
+}
+
+function normalizeRankSet(set: M0cRankSet): M0cRankSet | null {
+  if (!set || typeof set !== "object") return null;
+  const mode = typeof set.mode === "string" && set.mode.trim() !== "" ? set.mode.trim() : undefined;
+  const ranks: Record<string, M0cRankSetEntry | null> = {};
+  const rawRanks = set.ranks;
+  if (!rawRanks || typeof rawRanks !== "object" || Array.isArray(rawRanks)) {
+    return null;
+  }
+  for (const [k, v] of Object.entries(rawRanks).sort(([a], [b]) =>
+    a.localeCompare(b),
+  )) {
+    if (!k) continue;
+    if (v === null) {
+      ranks[k] = null;
+      continue;
+    }
+    if (typeof v !== "number" || !Number.isFinite(v)) continue;
+    ranks[k] = v;
+  }
+  if (Object.keys(ranks).length === 0) {
+    if (mode === undefined) return null;
+  }
+  return mode !== undefined ? { mode, ranks } : { ranks };
 }
 
 function normalizeRegions(regions: M0pRegions | null): M0pRegions | null {
@@ -248,6 +413,7 @@ export function parseM0pFile(jsonText: string): M0pFile {
   const app = parseStringOrNull(r.app);
   const appVersion = parseStringOrNull(r.appVersion);
   const meta = parseMetaOrNull(r.meta, "parseM0pFile");
+  const agent = parseAgentOrNull(r.agent);
   const regions = parseRegionsOrNull(r.regions);
 
   if (!isPlainObject(r.variants)) {
@@ -276,6 +442,7 @@ export function parseM0pFile(jsonText: string): M0pFile {
     app,
     appVersion,
     meta,
+    ...(agent ? { agent } : {}),
     regions,
     custom: r.custom === undefined ? null : r.custom,
     variants,
@@ -288,15 +455,22 @@ function parseVariantEntry(key: string, v: unknown): M0pVariantEntry {
   }
   const o = v as Record<string, unknown>;
 
-  const m0Raw = typeof o.m0 === "string" ? o.m0.trim() : "";
-  if (!m0Raw) {
-    throw new Error(`parseM0pFile: variant "${key}" missing m0 payload`);
-  }
+  // Accept canonical OR pretty DSL on read, normalize to canonical, reject
+  // invalid m0 — every parsed variant is canonical and renderable.
+  const m0Raw = canonicalizeAndValidateM0(
+    `parseM0pFile (variant "${key}")`,
+    typeof o.m0 === "string" ? o.m0 : "",
+    `parseM0pFile: variant "${key}" missing m0 payload`,
+  );
 
   const size = parseSizeRequired(key, o.size);
   const meta = parseMetaOrNull(o.meta, `parseM0pFile: variant "${key}"`);
   const labels = parseLabelsOrNull(key, o.labels);
   const derive = parseDerive(key, o.derive);
+  const masks = parseMasksOrNull(key, o.masks);
+  const fill = parseFillOrNull(key, o.fill);
+  const insets = parseInsetsOrNull(key, o.insets);
+  const rankSets = parseRankSetsOrNull(key, o.rankSets);
 
   const entry: M0pVariantEntry = {
     meta,
@@ -304,6 +478,10 @@ function parseVariantEntry(key: string, v: unknown): M0pVariantEntry {
     m0: m0Raw,
     labels,
     derive,
+    masks,
+    fill,
+    insets,
+    rankSets,
     custom: o.custom === undefined ? null : o.custom,
   };
 
@@ -391,33 +569,211 @@ function parseLabelsOrNull(
   return Object.keys(out).length ? out : null;
 }
 
-function parseDerive(variantKey: string, v: unknown): { image: M0cDeriveImage | null } {
-  if (v == null) return { image: null };
+function parseDerive(variantKey: string, v: unknown): { background: string | null } {
+  if (v == null) return { background: null };
   if (!isPlainObject(v)) {
     throw new Error(
       `parseM0pFile: variant "${variantKey}" derive must be an object or null`,
     );
   }
-  const image = (v as any).image;
-  if (image == null) return { image: null };
-  if (!isPlainObject(image)) {
+
+  const backgroundRaw = (v as any).background;
+  if (backgroundRaw === undefined || backgroundRaw === null) {
+    return { background: null };
+  }
+  if (typeof backgroundRaw !== "string") {
     throw new Error(
-      `parseM0pFile: variant "${variantKey}" derive.image must be an object or null`,
+      `parseM0pFile: variant "${variantKey}" derive.background must be a string or null`,
     );
   }
-  const mime = (image as any).mime;
-  const bytes = (image as any).bytes;
-  const b64 = (image as any).b64;
-  if (mime !== "image/png" && mime !== "image/jpeg" && mime !== "image/webp") {
-    throw new Error(`parseM0pFile: variant "${variantKey}" derive.image.mime invalid`);
+  const trimmed = backgroundRaw.trim();
+  return { background: trimmed === "" ? null : trimmed };
+}
+
+function parseMasksOrNull(
+  variantKey: string,
+  v: unknown,
+): Record<string, M0cMaskEntry | null> | null {
+  if (v == null) return null;
+  if (!isPlainObject(v) || Array.isArray(v)) {
+    throw new Error(
+      `parseM0pFile: variant "${variantKey}" masks must be an object map or null`,
+    );
   }
-  if (typeof bytes !== "number" || !Number.isFinite(bytes) || bytes < 0) {
-    throw new Error(`parseM0pFile: variant "${variantKey}" derive.image.bytes invalid`);
+  const masksObj = v as Record<string, unknown>;
+  const out: Record<string, M0cMaskEntry | null> = {};
+  for (const [k, vv] of Object.entries(masksObj)) {
+    if (!k) continue;
+    if (vv === null) {
+      out[k] = null;
+      continue;
+    }
+    if (!isPlainObject(vv)) {
+      throw new Error(
+        `parseM0pFile: variant "${variantKey}" masks["${k}"] must be an object or null`,
+      );
+    }
+    const lp = (vv as any).localPath;
+    if (typeof lp !== "string" || lp.trim() === "") {
+      throw new Error(
+        `parseM0pFile: variant "${variantKey}" masks["${k}"].localPath must be a non-empty string`,
+      );
+    }
+    const b = (vv as any).bounds;
+    if (!isPlainObject(b)) {
+      throw new Error(
+        `parseM0pFile: variant "${variantKey}" masks["${k}"].bounds must be an object`,
+      );
+    }
+    const bx = (b as any).x;
+    const by = (b as any).y;
+    const bw = (b as any).width;
+    const bh = (b as any).height;
+    if (
+      typeof bx !== "number" ||
+      typeof by !== "number" ||
+      typeof bw !== "number" ||
+      typeof bh !== "number" ||
+      !Number.isFinite(bx) ||
+      !Number.isFinite(by) ||
+      !Number.isFinite(bw) ||
+      !Number.isFinite(bh)
+    ) {
+      throw new Error(
+        `parseM0pFile: variant "${variantKey}" masks["${k}"].bounds x/y/width/height must be finite numbers`,
+      );
+    }
+    out[k] = { localPath: lp, bounds: { x: bx, y: by, width: bw, height: bh } };
   }
-  if (typeof b64 !== "string" || b64.trim() === "") {
-    throw new Error(`parseM0pFile: variant "${variantKey}" derive.image.b64 invalid`);
+  return Object.keys(out).length ? out : null;
+}
+
+function parseFillOrNull(
+  variantKey: string,
+  v: unknown,
+): Record<string, M0cFill> | null {
+  if (v == null) return null;
+  if (!isPlainObject(v) || Array.isArray(v)) {
+    throw new Error(
+      `parseM0pFile: variant "${variantKey}" fill must be an object map or null`,
+    );
   }
-  return { image: { mime, bytes, b64 } };
+  const fillObj = v as Record<string, unknown>;
+  const out: Record<string, M0cFill> = {};
+  for (const [k, vv] of Object.entries(fillObj)) {
+    if (!k) continue;
+    if (!isPlainObject(vv)) {
+      throw new Error(
+        `parseM0pFile: variant "${variantKey}" fill["${k}"] must be an object`,
+      );
+    }
+    const colorRaw = (vv as any).color;
+    const mediaRefRaw = (vv as any).mediaRef;
+    const color = typeof colorRaw === "string" ? colorRaw.trim() : "";
+    const mediaRef = typeof mediaRefRaw === "string" ? mediaRefRaw.trim() : "";
+    if (!color && !mediaRef) continue;
+    const entry: M0cFill = {};
+    if (color) entry.color = color;
+    if (mediaRef) entry.mediaRef = mediaRef;
+    out[k] = entry;
+  }
+  return Object.keys(out).length ? out : null;
+}
+
+function parseInsetsOrNull(
+  variantKey: string,
+  v: unknown,
+): Record<string, M0cInset> | null {
+  if (v == null) return null;
+  if (!isPlainObject(v) || Array.isArray(v)) {
+    throw new Error(
+      `parseM0pFile: variant "${variantKey}" insets must be an object map or null`,
+    );
+  }
+  const insetsObj = v as Record<string, unknown>;
+  const out: Record<string, M0cInset> = {};
+  for (const [k, vv] of Object.entries(insetsObj)) {
+    if (!k) continue;
+    if (!isPlainObject(vv)) {
+      throw new Error(
+        `parseM0pFile: variant "${variantKey}" insets["${k}"] must be an object`,
+      );
+    }
+    const edges: Record<string, number> = {};
+    for (const e of INSET_EDGES) {
+      const raw = (vv as any)[e];
+      if (typeof raw !== "number" || !Number.isFinite(raw)) {
+        throw new Error(
+          `parseM0pFile: variant "${variantKey}" insets["${k}"].${e} must be a finite number`,
+        );
+      }
+      edges[e] = raw;
+    }
+    if (INSET_EDGES.every((e) => edges[e] === 0)) continue;
+    out[k] = { top: edges.top, right: edges.right, bottom: edges.bottom, left: edges.left };
+  }
+  return Object.keys(out).length ? out : null;
+}
+
+function parseRankSetsOrNull(
+  variantKey: string,
+  v: unknown,
+): Record<string, M0cRankSet | null> | null {
+  if (v == null) return null;
+  if (!isPlainObject(v) || Array.isArray(v)) {
+    throw new Error(
+      `parseM0pFile: variant "${variantKey}" rankSets must be an object map or null`,
+    );
+  }
+  const setsObj = v as Record<string, unknown>;
+  const out: Record<string, M0cRankSet | null> = {};
+
+  for (const [name, raw] of Object.entries(setsObj)) {
+    if (!name) continue;
+    if (raw === null) {
+      out[name] = null;
+      continue;
+    }
+    if (!isPlainObject(raw)) {
+      throw new Error(
+        `parseM0pFile: variant "${variantKey}" rankSets["${name}"] must be an object or null`,
+      );
+    }
+    const modeRaw = (raw as any).mode;
+    const mode =
+      modeRaw === undefined
+        ? undefined
+        : typeof modeRaw === "string"
+        ? modeRaw
+        : (() => {
+            throw new Error(
+              `parseM0pFile: variant "${variantKey}" rankSets["${name}"].mode must be a string or absent`,
+            );
+          })();
+    const ranksRaw = (raw as any).ranks;
+    if (!isPlainObject(ranksRaw) || Array.isArray(ranksRaw)) {
+      throw new Error(
+        `parseM0pFile: variant "${variantKey}" rankSets["${name}"].ranks must be an object map keyed by stableKey`,
+      );
+    }
+    const ranks: Record<string, M0cRankSetEntry | null> = {};
+    for (const [k, vv] of Object.entries(ranksRaw as Record<string, unknown>)) {
+      if (!k) continue;
+      if (vv === null) {
+        ranks[k] = null;
+        continue;
+      }
+      if (typeof vv !== "number" || !Number.isFinite(vv)) {
+        throw new Error(
+          `parseM0pFile: variant "${variantKey}" rankSets["${name}"].ranks["${k}"] must be a finite number or null`,
+        );
+      }
+      ranks[k] = vv;
+    }
+    out[name] = mode !== undefined ? { mode, ranks } : { ranks };
+  }
+
+  return Object.keys(out).length ? out : null;
 }
 
 function parseRegionsOrNull(v: unknown): M0pRegions | null {
@@ -483,10 +839,18 @@ export function bundleM0cIntoPack(
 
   const entry: M0pVariantEntry = {
     meta: f.meta,
+    // Agent annotations live on the variant — each variant in a pack can
+    // carry its own iteration-loop notes (an agent might be reviewing a
+    // single variant, not the whole pack).
+    agent: f.agent ?? null,
     size: f.size,
     m0: f.m0,
     labels: f.labels,
     derive: f.derive,
+    masks: f.masks,
+    fill: f.fill,
+    insets: f.insets,
+    rankSets: f.rankSets,
     custom: f.custom ?? null,
   };
 
@@ -520,10 +884,19 @@ export function extractVariantAsM0c(pack: M0pFile, key: string): M0cFile {
     app: entry.app !== undefined ? entry.app : pack.app,
     appVersion: entry.appVersion !== undefined ? entry.appVersion : pack.appVersion,
     meta: entry.meta ?? pack.meta,
+    // Only the variant's OWN agent annotation passes through. The pack-level
+    // agent (the closeout sign-off) is most relevant on the m0p pack view and
+    // is NOT inherited onto each variant — that just duplicated the same block
+    // across every extracted m0c.
+    agent: entry.agent ?? null,
     size: entry.size,
     m0: entry.m0,
     labels: entry.labels,
     derive: entry.derive,
+    masks: entry.masks,
+    fill: entry.fill,
+    insets: entry.insets,
+    rankSets: entry.rankSets,
     custom: entry.custom ?? null,
   };
 }

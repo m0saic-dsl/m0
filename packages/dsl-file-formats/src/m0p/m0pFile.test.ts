@@ -43,7 +43,7 @@ describe("serializeM0pFile", () => {
     expect(v.m0).toBe("1");
     expect(v.meta).toBeNull();
     expect(v.labels).toBeNull();
-    expect(v.derive).toEqual({ image: null });
+    expect(v.derive).toEqual({ background: null });
     // No overrides emitted when fields aren't set on input.
     expect(v.created).toBeUndefined();
     expect(v.app).toBeUndefined();
@@ -291,7 +291,7 @@ describe("parseM0pFile", () => {
           size: { width: 1920, height: 1080 },
           m0: "F",
           labels: null,
-          derive: { image: null },
+          derive: { background: null },
         },
       },
       ...overrides,
@@ -307,7 +307,7 @@ describe("parseM0pFile", () => {
     expect(file.regions).toBeNull();
     expect(Object.keys(file.variants)).toEqual(["desktop"]);
     expect(file.variants.desktop.size).toEqual({ width: 1920, height: 1080 });
-    expect(file.variants.desktop.m0).toBe("F");
+    expect(file.variants.desktop.m0).toBe("1"); // pretty/alias "F" accepted on read, normalized to canonical
   });
 
   it("throws on wrong format", () => {
@@ -350,7 +350,7 @@ describe("parseM0pFile", () => {
               size: { width: 1920, height: 1080 },
               m0: "F",
               labels: null,
-              derive: { image: null },
+              derive: { background: null },
             },
           },
         }),
@@ -367,7 +367,7 @@ describe("parseM0pFile", () => {
               meta: null,
               m0: "F",
               labels: null,
-              derive: { image: null },
+              derive: { background: null },
             },
           },
         }),
@@ -385,7 +385,7 @@ describe("parseM0pFile", () => {
               size: { width: -10, height: 100 },
               m0: "F",
               labels: null,
-              derive: { image: null },
+              derive: { background: null },
             },
           },
         }),
@@ -403,7 +403,7 @@ describe("parseM0pFile", () => {
               size: { width: 1920, height: 1080 },
               m0: "  ",
               labels: null,
-              derive: { image: null },
+              derive: { background: null },
             },
           },
         }),
@@ -426,7 +426,7 @@ describe("parseM0pFile", () => {
             size: { width: 1920, height: 1080 },
             m0: "F",
             labels: null,
-            derive: { image: null },
+            derive: { background: null },
             created: "2025-01-01T00:00:00.000Z",
             app: "other-app",
             appVersion: "9.9.9",
@@ -516,7 +516,7 @@ describe("m0p roundtrip", () => {
       variants: {
         desktop: {
           size: { width: 1920, height: 1080 },
-          m0: "21[13(F,F),8(F,F)]",
+          m0: "3[F,2[F,F],F]",
           meta: { note: "16:9 hero" },
           labels: {
             [K1]: { text: "headline", color: "#ef7525" },
@@ -539,13 +539,15 @@ describe("m0p roundtrip", () => {
 
     const v = file.variants.desktop;
     expect(v.size).toEqual({ width: 1920, height: 1080 });
-    expect(v.m0).toBe("21[13(1,1),8(1,1)]");
+    expect(v.m0).toBe("3[1,2[1,1],1]");
     expect(v.meta).toEqual({ note: "16:9 hero" });
     expect(v.labels).toEqual({
       [K1]: { text: "headline", color: "#ef7525" },
       [K2]: { text: "hero" },
     });
-    expect(v.derive.image).toEqual(deriveImage);
+    expect(v.derive.background).toBe(
+      `data:${deriveImage.mime};base64,${deriveImage.b64}`,
+    );
   });
 
   it("serialize → parse → serialize is byte-stable", () => {
@@ -577,7 +579,7 @@ describe("m0p roundtrip", () => {
             m0: v.m0,
             meta: v.meta,
             labels: v.labels,
-            deriveImage: v.derive.image,
+            background: v.derive.background,
             custom: v.custom,
             created: v.created ? new Date(v.created) : undefined,
             app: v.app,
@@ -746,5 +748,421 @@ describe("discovery helpers", () => {
     const hit = findVariantBySize(pack, 1080, 1920);
     expect(hit?.key).toBe("mobile");
     expect(findVariantBySize(pack, 9999, 9999)).toBeNull();
+  });
+});
+
+describe("masks — per-variant round trip", () => {
+  it("masks round-trip through serialize → parse on a pack variant", () => {
+    const json = serializeM0pFile({
+      created: FIXED_DATE,
+      variants: {
+        desktop: {
+          size: { width: 1920, height: 1080 },
+          m0: "F",
+          masks: {
+            [K1]: {
+              localPath: "M 0 0 H 100 V 100 H 0 Z",
+              bounds: { x: 0, y: 0, width: 100, height: 100 },
+            },
+            "r/fc1": null,
+          },
+        },
+      },
+    });
+    const pack = parseM0pFile(json);
+    expect(pack.variants.desktop.masks).toEqual({
+      [K1]: {
+        localPath: "M 0 0 H 100 V 100 H 0 Z",
+        bounds: { x: 0, y: 0, width: 100, height: 100 },
+      },
+      "r/fc1": null,
+    });
+  });
+
+  it("masks survive .m0c → pack (bundleM0cIntoPack) → .m0c (extractVariantAsM0c)", () => {
+    const original = parseM0cFile(
+      serializeM0cFile({
+        m0: "F",
+        size: { width: 480, height: 480 },
+        created: FIXED_DATE,
+        masks: {
+          [K1]: {
+            localPath: "M 5 5 H 95 V 95 H 5 Z",
+            bounds: { x: 0, y: 0, width: 100, height: 100 },
+          },
+        },
+      }),
+    );
+    const pack = bundleM0cIntoPack({ key: "desktop", file: original });
+    const round = extractVariantAsM0c(pack, "desktop");
+    expect(round.masks).toEqual(original.masks);
+  });
+
+  it("old pack files (no masks field) parse cleanly with masks: null per variant", () => {
+    // Forward-compat check: any pack JSON written before masks landed
+    // must continue to parse, with masks materialized as null per variant.
+    const oldFormat = JSON.stringify({
+      format: "m0p",
+      version: 1,
+      created: "2025-01-01T00:00:00.000Z",
+      app: null,
+      appVersion: null,
+      meta: null,
+      regions: null,
+      custom: null,
+      variants: {
+        desktop: {
+          meta: null,
+          size: { width: 100, height: 100 },
+          m0: "F",
+          labels: null,
+          derive: { background: null },
+          custom: null,
+        },
+      },
+    });
+    const pack = parseM0pFile(oldFormat);
+    expect(pack.variants.desktop.masks).toBeNull();
+  });
+});
+
+describe("rankSets — per-variant round trip", () => {
+  it("rankSets round-trip through serialize → parse on a pack variant", () => {
+    const json = serializeM0pFile({
+      created: FIXED_DATE,
+      variants: {
+        desktop: {
+          size: { width: 1920, height: 1080 },
+          m0: "F",
+          rankSets: {
+            diag: { mode: "diag", ranks: { [K1]: 0, [K2]: 1 } },
+            custom: null,
+          },
+        },
+      },
+    });
+    const pack = parseM0pFile(json);
+    expect(pack.variants.desktop.rankSets).toEqual({
+      custom: null,
+      diag: { mode: "diag", ranks: { [K1]: 0, [K2]: 1 } },
+    });
+  });
+
+  it("rankSets survive .m0c → pack (bundleM0cIntoPack) → .m0c (extractVariantAsM0c)", () => {
+    const original = parseM0cFile(
+      serializeM0cFile({
+        m0: "F",
+        size: { width: 480, height: 480 },
+        created: FIXED_DATE,
+        rankSets: {
+          hero: { mode: "radial", ranks: { [K1]: 0.5 } },
+        },
+      }),
+    );
+    const pack = bundleM0cIntoPack({ key: "desktop", file: original });
+    const round = extractVariantAsM0c(pack, "desktop");
+    expect(round.rankSets).toEqual(original.rankSets);
+  });
+
+  it("old pack files (no rankSets field) parse cleanly with rankSets: null per variant", () => {
+    const oldFormat = JSON.stringify({
+      format: "m0p",
+      version: 1,
+      created: "2025-01-01T00:00:00.000Z",
+      app: null,
+      appVersion: null,
+      meta: null,
+      regions: null,
+      custom: null,
+      variants: {
+        desktop: {
+          meta: null,
+          size: { width: 100, height: 100 },
+          m0: "F",
+          labels: null,
+          derive: { background: null },
+          masks: null,
+          custom: null,
+        },
+      },
+    });
+    const pack = parseM0pFile(oldFormat);
+    expect(pack.variants.desktop.rankSets).toBeNull();
+  });
+
+  it("parser rejects rankSets that aren't a plain object map", () => {
+    const bad = JSON.stringify({
+      format: "m0p",
+      version: 1,
+      created: "2025-01-01T00:00:00.000Z",
+      app: null,
+      appVersion: null,
+      meta: null,
+      regions: null,
+      custom: null,
+      variants: {
+        desktop: {
+          meta: null,
+          size: { width: 100, height: 100 },
+          m0: "F",
+          labels: null,
+          derive: { background: null },
+          masks: null,
+          rankSets: ["not", "a", "map"],
+          custom: null,
+        },
+      },
+    });
+    expect(() => parseM0pFile(bad)).toThrow(/rankSets/);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// fill — per-variant round trip
+// ─────────────────────────────────────────────────────────────
+
+describe("fill — per-variant round trip", () => {
+  it("fill round-trips through serialize → parse on a pack variant", () => {
+    const json = serializeM0pFile({
+      created: FIXED_DATE,
+      variants: {
+        desktop: {
+          size: { width: 1920, height: 1080 },
+          m0: "F",
+          fill: {
+            [K1]: { color: "#ef7525" },
+            [K2]: { mediaRef: "avatar.png" },
+          },
+        },
+      },
+    });
+    const pack = parseM0pFile(json);
+    expect(pack.variants.desktop.fill).toEqual({
+      [K1]: { color: "#ef7525" },
+      [K2]: { mediaRef: "avatar.png" },
+    });
+  });
+
+  it("fill survives .m0c → pack (bundleM0cIntoPack) → .m0c (extractVariantAsM0c)", () => {
+    const m0cJson = serializeM0cFile({
+      m0: "F",
+      size: { width: 1920, height: 1080 },
+      created: FIXED_DATE,
+      fill: { [K1]: { color: "#bcd6e8", mediaRef: "sample.png" } },
+    });
+    const m0c = parseM0cFile(m0cJson);
+    const pack = bundleM0cIntoPack({ key: "desktop", file: m0c });
+    expect(pack.variants.desktop.fill).toEqual({
+      [K1]: { color: "#bcd6e8", mediaRef: "sample.png" },
+    });
+    const extracted = extractVariantAsM0c(pack, "desktop");
+    expect(extracted.fill).toEqual({
+      [K1]: { color: "#bcd6e8", mediaRef: "sample.png" },
+    });
+  });
+
+  it("old pack files (no fill field) parse cleanly with fill: null per variant", () => {
+    const oldFormat = JSON.stringify({
+      format: "m0p",
+      version: 1,
+      created: "2025-01-01T00:00:00.000Z",
+      app: null,
+      appVersion: null,
+      meta: null,
+      regions: null,
+      custom: null,
+      variants: {
+        desktop: {
+          meta: null,
+          size: { width: 100, height: 100 },
+          m0: "F",
+          labels: null,
+          derive: { background: null },
+          masks: null,
+          rankSets: null,
+          custom: null,
+        },
+      },
+    });
+    const pack = parseM0pFile(oldFormat);
+    expect(pack.variants.desktop.fill).toBeNull();
+  });
+
+  it("parser rejects fill that isn't a plain object map (per variant)", () => {
+    const bad = JSON.stringify({
+      format: "m0p",
+      version: 1,
+      created: "2025-01-01T00:00:00.000Z",
+      app: null,
+      appVersion: null,
+      meta: null,
+      regions: null,
+      custom: null,
+      variants: {
+        desktop: {
+          meta: null,
+          size: { width: 100, height: 100 },
+          m0: "F",
+          labels: null,
+          derive: { background: null },
+          masks: null,
+          fill: "not a map",
+          rankSets: null,
+          custom: null,
+        },
+      },
+    });
+    expect(() => parseM0pFile(bad)).toThrow(/fill/);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// insets — per-variant round trip
+// ─────────────────────────────────────────────────────────────
+
+describe("insets — per-variant round trip", () => {
+  it("insets round-trip through serialize → parse on a pack variant", () => {
+    const json = serializeM0pFile({
+      created: FIXED_DATE,
+      variants: {
+        desktop: {
+          size: { width: 1920, height: 1080 },
+          m0: "F",
+          insets: {
+            [K1]: { top: 0.02, right: 0.03, bottom: 0.02, left: 0.03 },
+          },
+        },
+      },
+    });
+    const pack = parseM0pFile(json);
+    expect(pack.variants.desktop.insets).toEqual({
+      [K1]: { top: 0.02, right: 0.03, bottom: 0.02, left: 0.03 },
+    });
+  });
+
+  it("insets survive .m0c → pack (bundleM0cIntoPack) → .m0c (extractVariantAsM0c)", () => {
+    const m0cJson = serializeM0cFile({
+      m0: "F",
+      size: { width: 1920, height: 1080 },
+      created: FIXED_DATE,
+      insets: { [K1]: { top: 0.04, right: 0.06, bottom: 0.03, left: 0.06 } },
+    });
+    const m0c = parseM0cFile(m0cJson);
+    const pack = bundleM0cIntoPack({ key: "desktop", file: m0c });
+    expect(pack.variants.desktop.insets).toEqual({
+      [K1]: { top: 0.04, right: 0.06, bottom: 0.03, left: 0.06 },
+    });
+    const extracted = extractVariantAsM0c(pack, "desktop");
+    expect(extracted.insets).toEqual({
+      [K1]: { top: 0.04, right: 0.06, bottom: 0.03, left: 0.06 },
+    });
+  });
+
+  it("drops all-zero inset entries on a variant", () => {
+    const json = serializeM0pFile({
+      created: FIXED_DATE,
+      variants: {
+        desktop: {
+          size: { width: 1920, height: 1080 },
+          m0: "F",
+          insets: { [K1]: { top: 0, right: 0, bottom: 0, left: 0 } },
+        },
+      },
+    });
+    const pack = parseM0pFile(json);
+    expect(pack.variants.desktop.insets).toBeNull();
+  });
+
+  it("old pack files (no insets field) parse cleanly with insets: null per variant", () => {
+    const oldFormat = JSON.stringify({
+      format: "m0p",
+      version: 1,
+      created: "2025-01-01T00:00:00.000Z",
+      app: null,
+      appVersion: null,
+      meta: null,
+      regions: null,
+      custom: null,
+      variants: {
+        desktop: {
+          meta: null,
+          size: { width: 100, height: 100 },
+          m0: "F",
+          labels: null,
+          derive: { background: null },
+          masks: null,
+          fill: null,
+          rankSets: null,
+          custom: null,
+        },
+      },
+    });
+    const pack = parseM0pFile(oldFormat);
+    expect(pack.variants.desktop.insets).toBeNull();
+  });
+
+  it("parser rejects insets that aren't a plain object map (per variant, path-named)", () => {
+    const bad = JSON.stringify({
+      format: "m0p",
+      version: 1,
+      created: "2025-01-01T00:00:00.000Z",
+      app: null,
+      appVersion: null,
+      meta: null,
+      regions: null,
+      custom: null,
+      variants: {
+        desktop: {
+          meta: null,
+          size: { width: 100, height: 100 },
+          m0: "F",
+          labels: null,
+          derive: { background: null },
+          masks: null,
+          fill: null,
+          insets: { [K1]: { top: 0.1, right: 0.1, bottom: 0.1 } }, // missing left
+          rankSets: null,
+          custom: null,
+        },
+      },
+    });
+    expect(() => parseM0pFile(bad)).toThrow(
+      new RegExp(`variant "desktop" insets\\["${K1}"\\]\\.left`),
+    );
+  });
+});
+
+describe("pack-level agent — round trip (mirrors .m0c)", () => {
+  const V = { up: { size: { width: 10, height: 10 }, m0: "F" } };
+
+  it("round-trips a pack-level agent note/question/response", () => {
+    const agent = {
+      note: "stat-card closeout",
+      question: "approve as master?",
+      response: { body: "yes", from: "human", at: "2026-06-11T00:00:00.000Z" },
+    };
+    const parsed = parseM0pFile(serializeM0pFile({ variants: V, agent }));
+    expect(parsed.agent).toEqual(agent);
+  });
+
+  it("agent-free packs stay byte-clean (no agent key)", () => {
+    const json = serializeM0pFile({ variants: V });
+    expect(json.includes('"agent"')).toBe(false);
+    expect(parseM0pFile(json).agent).toBeUndefined();
+  });
+
+  it("serializeM0pFile rejects a variant with invalid m0", () => {
+    expect(() =>
+      serializeM0pFile({
+        variants: { a: { size: { width: 100, height: 100 }, m0: "2[1]" } },
+      }),
+    ).toThrow(/invalid m0 layout/);
+  });
+
+  it("serializeM0pFile canonicalizes pretty variant m0 on emit", () => {
+    const json = serializeM0pFile({
+      variants: { a: { size: { width: 100, height: 100 }, m0: "2[F,F]" } },
+    });
+    expect(JSON.parse(json).variants.a.m0).toBe("2[1,1]");
   });
 });

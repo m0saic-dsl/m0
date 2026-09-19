@@ -22,6 +22,7 @@ describe("types", () => {
       app: null,
       appVersion: null,
       meta: null,
+      agent: null,
       size: null,
       m0: "1",
     };
@@ -40,7 +41,11 @@ describe("types", () => {
       size: null,
       m0: "1",
       labels: null,
-      derive: { image: null },
+      derive: { background: null },
+      masks: null,
+      fill: null,
+      insets: null,
+      rankSets: null,
       custom: null,
     };
     expect(file.format).toBe("m0c");
@@ -65,7 +70,11 @@ describe("types", () => {
       size: { width: 1920, height: 1080 },
       m0: "1",
       labels: null,
-      derive: { image: null },
+      derive: { background: null },
+      masks: null,
+      fill: null,
+      insets: null,
+      rankSets: null,
       custom: null,
     };
     const pack: M0pFile = {
@@ -97,7 +106,11 @@ describe("types", () => {
       size: { width: 100, height: 100 },
       m0: "1",
       labels: null,
-      derive: { image: null },
+      derive: { background: null },
+      masks: null,
+      fill: null,
+      insets: null,
+      rankSets: null,
       custom: null,
       created: "2025-01-01T00:00:00.000Z",
       app: "other",

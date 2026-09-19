@@ -19,7 +19,8 @@ import { bundleM0cIntoPack, extractVariantAsM0c } from "./m0p/m0pFile";
 
 /**
  * Upgrade an `.m0` file to `.m0c`. Lossless — `.m0c` is a strict
- * superset of `.m0`'s shape. Labels and derive image start as null.
+ * superset of `.m0`'s shape. Labels, derive image, masks, fill, insets, and
+ * rank sets start as null.
  */
 export function upgradeM0ToM0c(file: M0File): M0cFile {
   return {
@@ -32,15 +33,19 @@ export function upgradeM0ToM0c(file: M0File): M0cFile {
     size: file.size,
     m0: file.m0,
     labels: null,
-    derive: { image: null },
+    derive: { background: null },
+    masks: null,
+    fill: null,
+    insets: null,
+    rankSets: null,
     custom: null,
   };
 }
 
 /**
- * Downgrade an `.m0c` file to `.m0`. **Lossy** — drops labels and
- * derive.image. Use when handing the layout to a renderer or wire
- * format that doesn't need editor metadata.
+ * Downgrade an `.m0c` file to `.m0`. **Lossy** — drops labels,
+ * derive.background, masks, fill, insets, and rank sets. Use when handing the
+ * layout to a renderer or wire format that doesn't need editor metadata.
  */
 export function downgradeM0cToM0(file: M0cFile): M0File {
   return {
@@ -49,6 +54,12 @@ export function downgradeM0cToM0(file: M0cFile): M0File {
     app: file.app,
     appVersion: file.appVersion,
     meta: file.meta,
+    // Agent annotations carry across — the JSON shape on `.m0c` is the
+    // same struct as the `m0agent:*` headers on `.m0`, so the downgrade
+    // is lossless. The line-based form can't represent extra fields that
+    // future m0c versions might add to the agent block; today there are
+    // none.
+    agent: file.agent ?? null,
     size: file.size,
     m0: file.m0,
   };

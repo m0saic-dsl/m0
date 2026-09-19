@@ -63,7 +63,11 @@ describe("upgradeM0ToM0c", () => {
     expect(m0c.size).toEqual(m0.size);
     expect(m0c.m0).toBe(m0.m0);
     expect(m0c.labels).toBeNull();
-    expect(m0c.derive).toEqual({ image: null });
+    expect(m0c.derive).toEqual({ background: null });
+    expect(m0c.masks).toBeNull();
+    expect(m0c.fill).toBeNull();
+    expect(m0c.insets).toBeNull();
+    expect(m0c.rankSets).toBeNull();
   });
 
   it("upgrade → downgrade is identity (since input had no labels/derive)", () => {

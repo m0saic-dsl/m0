@@ -6,8 +6,8 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w packages/dsl",
-    "test": "npm run test -w packages/dsl",
+    "build": "npm run build -w packages/dsl && npm run build -w packages/dsl-file-formats",
+    "test": "npm run test -w packages/dsl && npm run test -w packages/dsl-file-formats",
     "test:slow": "npm run test:stress -w packages/dsl"
   },
   "devDependencies": {

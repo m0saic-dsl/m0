@@ -1,5 +1,6 @@
 import { validateLabels } from "./validateLabels";
-import type { M0Label, StableKey } from "@m0saic/dsl";
+import type { StableKey } from "@m0saic/dsl";
+import type { M0Label } from "../types";
 
 const sk = (s: string) => s as StableKey;
 const labelsOf = (entries: Array<[string, M0Label]>) =>

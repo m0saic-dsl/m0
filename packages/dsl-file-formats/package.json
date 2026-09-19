@@ -1,6 +1,6 @@
 {
   "name": "@m0saic/dsl-file-formats",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": ".m0 and .m0c file format parsing and serialization for the m0 DSL",
   "keywords": [
     "m0saic",
@@ -20,13 +20,14 @@
     "url": "git+https://github.com/m0saic-dsl/m0.git",
     "directory": "packages/dsl-file-formats"
   },
-  "homepage": "https://github.com/m0saic-dsl/m0",
+  "homepage": "https://github.com/m0saic-dsl/m0/tree/main/packages/dsl-file-formats#readme",
   "bugs": {
     "url": "https://github.com/m0saic-dsl/m0/issues"
   },
   "author": "m0saic LLC",
   "files": [
     "dist",
+    "assets/icons",
     "LICENSE",
     "NOTICE",
     "README.md"
@@ -53,6 +54,6 @@
     "test": "jest --config jest.config.cjs --no-coverage"
   },
   "dependencies": {
-    "@m0saic/dsl": "^1.0.0"
+    "@m0saic/dsl": "^2.0.0"
   }
 }
