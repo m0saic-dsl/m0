@@ -46,6 +46,14 @@ export function upgradeM0ToM0c(file: M0File): M0cFile {
  * Downgrade an `.m0c` file to `.m0`. **Lossy** — drops labels,
  * derive.background, masks, fill, insets, and rank sets. Use when handing the
  * layout to a renderer or wire format that doesn't need editor metadata.
+ *
+ * ⚠️ Dropping `insets` changes what RENDERS, not just what the editor shows:
+ * an inset is geometry the engine applies at render time, so the plain `m0`
+ * returned here paints bigger cells than the `.m0c` did. This function is
+ * the pure struct transform and cannot bake (it would need the stdlib's
+ * rebuild). To lower a file WITHOUT losing that geometry use
+ * `lowerM0cToM0` from `@m0saic/dsl-stdlib`, which folds the insets into the
+ * m0 first and then calls this.
  */
 export function downgradeM0cToM0(file: M0cFile): M0File {
   return {

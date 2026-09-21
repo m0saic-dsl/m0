@@ -27,6 +27,13 @@ export type {
   PlaceOptimizedRectsResult,
 } from "./placeOptimizedRects";
 export { placeInsetRects } from "./placeInsetRects";
+export { bakeM0cInsets, lowerM0cToM0 } from "./bakeM0cInsets";
+export type {
+  BakeM0cInsetsOptions,
+  BakeM0cInsetsMeta,
+  BakeM0cInsetsResult,
+  LowerM0cToM0Result,
+} from "./bakeM0cInsets";
 export type {
   PlaceInsetRectsRect,
   PlaceInsetRectsInset,

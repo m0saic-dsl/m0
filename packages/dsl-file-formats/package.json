@@ -1,6 +1,6 @@
 {
   "name": "@m0saic/dsl-file-formats",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": ".m0 and .m0c file format parsing and serialization for the m0 DSL",
   "keywords": [
     "m0saic",

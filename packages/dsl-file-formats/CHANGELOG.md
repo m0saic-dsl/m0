@@ -1,5 +1,24 @@
 # Changelog
 
+## 2.0.1 — 2026-09-21
+
+### downgradeM0cToM0: document that dropping insets changes the rendered geometry
+
+`downgradeM0cToM0`'s JSDoc now states that the `insets` it drops are render-time geometry, so the
+plain `m0` it returns paints bigger cells than the `.m0c` did, and points callers at
+`lowerM0cToM0` in `@m0saic/dsl-stdlib`, which bakes the insets into the m0 first. No code change:
+this function is the pure struct transform and cannot bake (stdlib depends on this package, not the
+other way round).
+
+**Compatibility.**
+
+- Breaking: no. Behaviour unchanged.
+
+**Release notes.**
+
+If you convert `.m0c` → `.m0` and the file carries insets, use `lowerM0cToM0` from
+`@m0saic/dsl-stdlib`; `downgradeM0cToM0` drops them.
+
 ## 2.0.0 — 2026-09-19
 
 ### File-format icons (.m0, .m0c, .m0p)

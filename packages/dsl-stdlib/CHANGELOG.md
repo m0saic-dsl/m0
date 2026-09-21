@@ -1,5 +1,35 @@
 # Changelog
 
+## 3.1.0 — 2026-09-21
+
+### bakeM0cInsets + lowerM0cToM0 — bake a .m0c's insets into its m0; lower to .m0 without losing geometry
+
+Two new builders close the gap between a `.m0c` and a plain `.m0`:
+
+- `bakeM0cInsets(file, opts?)` — folds the file's per-frame `insets` sidecar into its `m0` with the
+  engine's exact inset math (`Math.floor(f · cell)` per edge, `Math.max(1, …)` on size — the same
+  rects `bakeInsets` and the app's `bakeDocumentInsets` produce), sets `insets` to `null`, and carries
+  every other stableKey-keyed sidecar (labels, masks, fill, rank sets) across the rebuild by the
+  rekey map, pruned to the leaves that still render. Returns the rebuilt `M0cFile`, the `rekey`
+  pairs, the `liveKeys` and a `meta` block (`changed`, `frameCount`, `insetCount`,
+  `orphanInsetKeys`, dsl lengths). No-op (m0 unchanged, `changed: false`) when there is nothing to
+  fold; throws when insets are present but the file has no `size`.
+- `lowerM0cToM0(file, opts?)` — the geometry-preserving downgrade: `bakeM0cInsets`, then
+  `downgradeM0cToM0` from `@m0saic/dsl-file-formats`. What it still drops (labels, masks, fill,
+  rank sets, the reference image) is exactly what plain `.m0` cannot carry.
+
+**Compatibility.**
+
+- Breaking: no. Additive exports; `bakeInsets` (paint-order array form) and `rebuildRects` unchanged.
+- Resolution-baked like every absolute rebuild: the output m0 is exact at `file.size` and longer
+  than the input.
+
+**Release notes.**
+
+Use `lowerM0cToM0` wherever a `.m0c` is turned into a `.m0` — `downgradeM0cToM0` alone drops the
+inset geometry. `bakeM0cInsets` is the same step without the format change, for tools that keep the
+`.m0c` wrapper.
+
 ## 3.0.0 — 2026-09-19
 
 ### Composition substrate I — pipe / compose / withInverse / withHistory / queryFrames
