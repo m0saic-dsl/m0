@@ -2,7 +2,7 @@
 
 Six file types carry m0 around. Four belong to the language and live in this repo, in
 [`@m0saic/dsl-file-formats`](./packages/dsl-file-formats). Two belong to
-[m0saic](https://github.com/m0saic-project/m0saic), the compiler, and sit below the line
+[m0saic](https://github.com/m0saic-project/m0saic), the video compiler, and sit below the line
 because they come up in the same breath.
 
 ## The m0 language
@@ -22,7 +22,7 @@ are real examples: one shipped template's whole geometry per file.
 
 ## m0saic types
 
-Not part of the m0 language. These are the compiler's documents, and the ones you will meet
+Not part of the m0 language. These are the video compiler's documents, and the ones you will meet
 next to a `.m0` on disk.
 
 | | Extension | What it is | Defined in |
