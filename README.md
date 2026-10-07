@@ -147,6 +147,7 @@ This repository contains four packages. Start with `dsl`.
   `.m0`, `.m0c` and `.m0p` serialization, parsing, and metadata containers
   → [API](./packages/dsl-file-formats/API.md)
   → [Docs](./packages/dsl-file-formats/README.md)
+  → [All six file types and their icons](./FILE-FORMATS.md)
 
 ### Validation & Testing
 
